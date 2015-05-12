@@ -25,6 +25,7 @@ app.use('/tests/', express.static('/tests'));
 // Schemer app paths
 app.use('/schemer/', express.static(__dirname + '/app'));
 app.use('/node_modules/', express.static(__dirname + '/node_modules'));
+app.use('/bower_components/', express.static(__dirname + '/bower_components'));
 app.use('/phantom/', express.static(__dirname + '/phantom'));
 
 // For parsing application/x-www-form-urlencoded
@@ -98,12 +99,13 @@ app.get('/context', function(req, res) {
     var getContext = function() {
         // First verify fixture exists
         fs.readFile(fixturePath, function(err, fixture) {
+            var is404 = err && err.code === 'ENOENT';
 
-            if (err) {
-                var errorCode = err && err.code === 'ENOENT' ? 404 : 500;
-                var errorMessage = errorCode === 404 ? 'Missing fixture' : 'Error reading fixture';
-                res.status(errorCode).send(errorMessage);
-
+            if (err && !is404) {
+                res.status(500).send('Error reading fixture');
+                return;
+            } else if(err && is404) {
+                res.send(false);
                 return;
             }
 

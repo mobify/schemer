@@ -21,10 +21,14 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                     viewName: viewName
                 },
                 success: function(data) {
+                    if (!data) {
+                        toastr.error('Error generating context, fixture doesn\'t exist');
+                    }
+
                     cb(data.generatedContext);
                 },
-                error: function(xhr) {
-                    toastr.error('Error retrieving generated view context');
+                error: function(xhr, status) {
+                    toastr.error('Error retrieving generated view context: ' + status);
                 }
             });
         };
