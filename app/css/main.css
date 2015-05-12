@@ -14,6 +14,14 @@
     margin-bottom: 20px;
 }
 
+.schema-row--action {
+    text-align: center;
+}
+
+.schema-match {
+    color: #51A351;
+}
+
 .legend.added {
     background: #bbffbb;
 }

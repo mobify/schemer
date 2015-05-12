@@ -57,7 +57,8 @@ require(['/tests/runner/config.js'], function() {
                 window.fixturePath = document.location.hash.match(/fixturePath=(text![\w//\.!]+)/)[1];
             }
 
-            require([viewPath, fixturePath], function(view, fixture) {
+            // TODO: Replace with a direct PhantomJS call
+            require([window.viewPath, window.fixturePath], function(view, fixture) {
                 generateContext(view, fixture);
             });
         });

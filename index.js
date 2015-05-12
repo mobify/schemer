@@ -13,6 +13,9 @@ var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var path = require('path');
 
+var childProcess = require('child_process');
+var phantomPath = require('phantomjs').path;
+
 var fs = require('fs');
 
 // Serve the Adaptive.js project whose folder we're in
@@ -82,15 +85,15 @@ app.get('/context', function(req, res) {
     var generatorPath = SERVER_URL + CONTEXT_MOCKER;
     var paths = req.query;
 
-    var viewPath = paths.viewPath;
-    var fixturePath = paths.fixturePath;
+    var viewName = req.query.viewName;
 
-    // Pass directly to PhantomJS
-    var pathString = '#viewPath=' + viewPath +
-        '&fixturePath=text!' + fixturePath;
+    /* TODO: Template these as a configuration setting, so that we can swap
+    out for Adaptive 2.0
+     */
+    var viewPath = 'adaptation/views/' + viewName;
+    var fixturePath = 'tests/fixtures/' + viewName + '.html';
 
-    var childProcess = require('child_process');
-    var phantomPath = require('phantomjs').path;
+    var pathString = '#viewPath=' + viewPath + '&fixturePath=text!' + fixturePath;
 
     var getContext = function() {
         // First verify fixture exists
@@ -104,22 +107,18 @@ app.get('/context', function(req, res) {
                 return;
             }
 
-            console.log('Path: ', generatorPath + pathString);
-
             var args = [
                 path.join(__dirname, '/phantom/main.js'),
                 generatorPath + pathString
             ];
 
-            console.log('Preparing to spawn PhantomJS');
+            console.log('Spawning PhantomJS');
 
             // Don't spawn every time, if possible
             childProcess.execFile(phantomPath, args, function(err, stdout, stderr) {
                 if (err) {
                     throw err;
                 }
-
-                console.log('Received context');
 
                 res.send({
                     generatedContext: JSON.parse(stdout)

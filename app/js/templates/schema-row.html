@@ -1,9 +1,11 @@
 <td><%- name %></td>
 <td><%- status %></td>
-<td>
+<td class="schema-row--action">
     <% if (status === SCHEMA_STATUS.MISSING) { %>
         <button type="button" class="js-create button-primary">Create</button>
-    <% } else if(status === SCHEMA_STATUS.RETRIEVED) { %>
-        <button type="button" class="js-verify">Verify</button>
+    <% } else if(status === SCHEMA_STATUS.MATCH) { %>
+        <span class="schema-match">&#10003;</span>
+    <% } else if(status === SCHEMA_STATUS.MISMATCH) { %>
+        <button type="button" class="js-review">Review</button>
     <% } %>
 </td>

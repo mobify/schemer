@@ -4,20 +4,17 @@
 //
 
 define(['jquery', 'backbone', 'backbone-views/App', 'backbone-models/Schema',
-        'backbone-views/Schema-Verify', 'backbone-collections/Schemata',
+        'backbone-views/Schema-Review', 'backbone-collections/Schemata',
         'backbone-views/Schema-List'],
-    function($, Backbone, AppView, Schema, SchemaVerifyView, Schemata,
+    function($, Backbone, AppView, Schema, SchemaReviewView, Schemata,
              SchemaListView) {
         var Router = Backbone.Router.extend({
             initialize: function() {
-                // Tells Backbone to start watching for hashchange events
                 Backbone.history.start();
             },
-            // All of your Backbone Routes (add more)
             routes: {
-                // When there is no hash on the url, the home method is called
                 '': 'index',
-                'verify-schema/:viewName': 'verify'
+                'review-schema/:viewName': 'review'
             },
             index: function() {
                 var app = new AppView();
@@ -28,14 +25,14 @@ define(['jquery', 'backbone', 'backbone-views/App', 'backbone-models/Schema',
                     router: this
                 });
             },
-            verify: function(viewName) {
+            review: function(viewName) {
                 var app = new AppView();
 
                 var model = new Schema({
                     name: viewName
                 });
 
-                new SchemaVerifyView({
+                new SchemaReviewView({
                     el: app.$el,
                     model: model,
                     app: app,
@@ -44,7 +41,6 @@ define(['jquery', 'backbone', 'backbone-views/App', 'backbone-models/Schema',
             }
         });
 
-        // Returns the Router class
         return Router;
     }
 

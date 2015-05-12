@@ -22,7 +22,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
             // View Event Handlers
             events: {
                 'click .js-create': 'createContext',
-                'click .js-verify': 'verifyContext'
+                'click .js-review': 'reviewSchema'
             },
 
             // Renders the view's template to the UI
@@ -46,8 +46,8 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 this.model.createContext();
             },
 
-            verifyContext: function() {
-                this.router.navigate('verify-schema/' + this.model.get('name'),
+            reviewSchema: function() {
+                this.router.navigate('review-schema/' + this.model.get('name'),
                     { trigger: true });
             }
 

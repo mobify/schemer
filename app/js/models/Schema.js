@@ -2,35 +2,25 @@
 // ------------
 //
 
-define(['jquery', 'backbone', 'toastr'],
-    function($, Backbone, toastr) {
+define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
+    function($, Backbone, toastr, jsondiffpatch) {
         var SCHEMA_STATUS = {
-            PENDING: 'pending',
-            RETRIEVED: 'retrieved',
+            PENDING: 'fetching',
+            MISMATCH: 'mismatch',
+            MATCH: 'match',
             MISSING: 'missing',
             ERROR: 'error'
         };
 
         // Generate context by running the fixture through the project view
         var generateContext = function(viewName, cb) {
-            const VIEW_DIR = 'adaptation/views/';
-            const FIXTURE_DIR = 'tests/fixtures/';
-
-            var viewTmpl = _.template('<%= VIEW_DIR %><%= viewName %>');
-            var fixtureTmpl = _.template('<%= FIXTURE_DIR %><%= viewName %>.html');
-
-            var viewPath = viewTmpl({ VIEW_DIR: VIEW_DIR, viewName: viewName });
-            var fixturePath = fixtureTmpl({ FIXTURE_DIR: FIXTURE_DIR, viewName: viewName });
-
             $.ajax({
                 url: '/context',
                 type: 'GET',
                 data: {
-                    viewPath: viewPath,
-                    fixturePath: fixturePath
+                    viewName: viewName
                 },
                 success: function(data) {
-
                     cb(data.generatedContext);
                 },
                 error: function(xhr) {
@@ -39,12 +29,10 @@ define(['jquery', 'backbone', 'toastr'],
             });
         };
 
-        // Creates a new Backbone Model class object
         var Model = Backbone.Model.extend({
 
             url: 'http://localhost:3000/schema/',
 
-            // Default values for all of the Model attributes
             defaults: {
                 name: 'Uninitialized Schema',
                 status: SCHEMA_STATUS.PENDING,
@@ -64,7 +52,7 @@ define(['jquery', 'backbone', 'toastr'],
                 model.fetch();
             },
 
-            // TODO: Backbone should do this automatically?
+            // TODO: Backbone should do this automatically. No $.ajax needed.
             fetch: function() {
                 var model = this;
 
@@ -76,6 +64,7 @@ define(['jquery', 'backbone', 'toastr'],
                     },
                     success: function(data) {
                         var savedContext;
+                        var status;
                         var generatedContext = model.get('generatedContext');
 
                         try {
@@ -87,20 +76,24 @@ define(['jquery', 'backbone', 'toastr'],
                         }
 
                         if (!generatedContext) {
-                            generateContext(model.get('name'), function(context) {
-                                if (!context) { return; }
+                            generateContext(model.get('name'), function(generatedContext) {
+                                if (!generatedContext) { return; }
+
+                                var delta = jsondiffpatch.diff(savedContext, generatedContext);
 
                                 model.set({
-                                    status: SCHEMA_STATUS.RETRIEVED,
+                                    status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
                                     savedContext: savedContext,
-                                    generatedContext: context
+                                    generatedContext: generatedContext
                                 });
 
                                 model.trigger('ready');
                             });
                         } else {
+                            var delta = jsondiffpatch.diff(savedContext, generatedContext);
+
                             model.set({
-                                status: SCHEMA_STATUS.RETRIEVED,
+                                status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
                                 savedContext: savedContext
                             });
 
@@ -143,8 +136,9 @@ define(['jquery', 'backbone', 'toastr'],
                         console.log('Cat overlord says: ', data);
                         toastr.info('Schema saved');
 
-                        // TODO: Just trigger change doesn't correctly seem to
-                        // trigger a UI update
+                        /* TODO: Just trigger change doesn't correctly seem to
+                         trigger a UI update
+                         */
                         model.trigger('change');
                         model.fetch();
                     });
@@ -153,7 +147,6 @@ define(['jquery', 'backbone', 'toastr'],
 
         });
 
-        // Returns the Model class
         return Model;
 
     }

@@ -4,7 +4,7 @@
 // Verifies the stored schema against the new generated context.
 
 define(['jquery', 'backbone', 'backbone-models/Schema',
-        'text!backbone-templates/schema-verify.html', 'jsondiffpatch',
+        'text!backbone-templates/schema-review.html', 'jsondiffpatch',
         'formatters', 'toastr'
     ],
     function($, Backbone, Schema, template, jsondiffpatch,
@@ -85,9 +85,8 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
         };
 
         var View = Backbone.View.extend({
-            el: '#js-schema-verify',
+            el: '#js-schema-review',
 
-            // View constructor
             initialize: function(options) {
                 this.router = options.router;
 
@@ -95,14 +94,12 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
                 this.listenTo(this.model, 'ready', this.render);
             },
 
-            // View Event Handlers
             events: {
                 'click .js-back-to-list': 'backToList',
                 'click .js-accept-change': 'acceptChange',
                 'click .js-save': 'saveChanges'
             },
 
-            // Renders the view's template to the UI
             render: function() {
                 var savedContext = sanitizeHtml(_.cloneDeep(this.model.get('savedContext')));
                 var generatedContext = sanitizeHtml(_.cloneDeep(this.model.get('generatedContext')));
@@ -136,7 +133,6 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
                 // TODO: We shouldn't show unchanged items in the first place
                 jsondiffpatch.formatters.hideUnchanged();
 
-                // Maintains chainability
                 return this;
             },
 
