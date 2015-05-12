@@ -335,7 +335,7 @@ define([], function() {
         context.out('<li class="' + nodeClass + '" data-key="' + leftKey + '">' +
         '<div class="jsondiffpatch-patch-container">' +
         '<button type="button" class="js-accept-change">Accept</button>' +
-        '<div class="jsondiffpatch-property-name">' + leftKey + '</div></div>');
+        '<div class="jsondiffpatch-property-name">' + leftKey + '</div>');
     };
 
 
@@ -351,7 +351,7 @@ define([], function() {
         }
         context.out('<div class="jsondiffpatch-value">');
         this.formatValue(context, left);
-        context.out('</div>');
+        context.out('</div></div>');
     };
 
     HtmlFormatter.prototype.format_movedestination = function(context, delta, left) {

@@ -22,6 +22,11 @@
     color: #51A351;
 }
 
+.schema-mismatch {
+    background-color: #BB3838;
+    color: #fff;
+}
+
 .legend.added {
     background: #bbffbb;
 }
@@ -42,6 +47,7 @@
 }
 
 .jsondiffpatch-patch-container {
+    width: 100%;
     overflow: hidden;
 }
 
