@@ -2,7 +2,7 @@
 // -------
 
 define(['jquery', 'backbone'],
-function(jQuery, Backbone) {
+function($, Backbone) {
 
     var View = Backbone.View.extend({
         el: '#app',

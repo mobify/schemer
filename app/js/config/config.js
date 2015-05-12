@@ -21,15 +21,6 @@ require.config({
         'text': 'node_modules/text/text'
     },
     shim: {
-        'dust-core': {
-            'exports': 'dust'
-        },
-        'dust-full': {
-            'exports': 'dust'
-        },
-        'baseSelectorLibrary': {
-            'exports': '$'
-        },
         'jsondiffpatch': {
             'deps': ['formatters'],
             'exports': 'jsondiffpatch'

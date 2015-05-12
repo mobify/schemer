@@ -7,7 +7,7 @@
 define(['jquery', 'underscore', 'backbone', 'backbone-models/Schema',
         'text!backbone-templates/schema-list.html', 'backbone-views/Schema-Row'],
 
-    function(jQuery, _, Backbone, Schema, template, SchemaRowView){
+    function($, _, Backbone, Schema, template, SchemaRowView){
 
         var View = Backbone.View.extend({
             // View constructor
@@ -33,11 +33,11 @@ define(['jquery', 'underscore', 'backbone', 'backbone-models/Schema',
             fetch: function() {
                 var schemata = this.model;
 
-                jQuery.ajax({
+                $.ajax({
                     url: '/views',
                     method: 'GET',
                     success: function(data) {
-                        jQuery.each(data, function(idx, name) {
+                        $.each(data, function(idx, name) {
                             schemata.add(new Schema({
                                 name: name.replace(/\.js/, '')
                             }));

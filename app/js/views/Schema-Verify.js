@@ -7,7 +7,7 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
         'text!backbone-templates/schema-verify.html', 'jsondiffpatch',
         'formatters', 'toastr'
     ],
-    function(jQuery, Backbone, Schema, template, jsondiffpatch,
+    function($, Backbone, Schema, template, jsondiffpatch,
              _customFormatter, toastr) {
         var htmlEntities = function(str) {
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -145,7 +145,7 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
             },
 
             acceptChange: function(e) {
-                var $node = jQuery(e.target).closest('[data-key]');
+                var $node = $(e.target).closest('[data-key]');
                 var key = $node.attr('data-key');
 
                 // TODO: Modify jsondiffpatch to give us the key directly

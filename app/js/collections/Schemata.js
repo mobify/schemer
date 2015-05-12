@@ -4,7 +4,7 @@
 //
 
 define(['jquery', 'backbone', 'backbone-models/Schema'],
-    function (jQuery, Backbone, Schema) {
+    function ($, Backbone, Schema) {
         // Creates a new Backbone Collection class object
         var Collection = Backbone.Collection.extend({
 

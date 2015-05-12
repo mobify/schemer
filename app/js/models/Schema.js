@@ -3,7 +3,7 @@
 //
 
 define(['jquery', 'backbone', 'toastr'],
-    function(jQuery, Backbone, toastr) {
+    function($, Backbone, toastr) {
         var SCHEMA_STATUS = {
             PENDING: 'pending',
             RETRIEVED: 'retrieved',
@@ -46,7 +46,7 @@ define(['jquery', 'backbone', 'toastr'],
             var viewPath = viewTmpl({ VIEW_DIR: VIEW_DIR, viewName: viewName });
             var fixturePath = fixtureTmpl({ FIXTURE_DIR: FIXTURE_DIR, viewName: viewName });
 
-            jQuery.ajax({
+            $.ajax({
                 url: '/context',
                 type: 'GET',
                 data: {
@@ -92,7 +92,7 @@ define(['jquery', 'backbone', 'toastr'],
             fetch: function() {
                 var model = this;
 
-                jQuery.ajax({
+                $.ajax({
                     url: model.url,
                     type: 'GET',
                     data: {
@@ -160,7 +160,7 @@ define(['jquery', 'backbone', 'toastr'],
                 var model = this;
 
                 if (attrs.savedContext) {
-                    jQuery.post(this.url, {
+                    $.post(this.url, {
                         path: 'schema/' + this.get('name') + '.json',
                         context: JSON.stringify(attrs.savedContext)
                     }, function (data) {

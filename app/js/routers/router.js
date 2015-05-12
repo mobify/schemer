@@ -6,7 +6,7 @@
 define(['jquery', 'backbone', 'backbone-views/App', 'backbone-models/Schema',
         'backbone-views/Schema-Verify', 'backbone-collections/Schemata',
         'backbone-views/Schema-List'],
-    function(jQuery, Backbone, AppView, Schema, SchemaVerifyView, Schemata,
+    function($, Backbone, AppView, Schema, SchemaVerifyView, Schemata,
              SchemaListView) {
         var Router = Backbone.Router.extend({
             initialize: function() {

@@ -7,7 +7,7 @@
 define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
         'text!backbone-templates/schema-row.html'],
 
-    function(jQuery, _, Backbone, Schema, template){
+    function($, _, Backbone, Schema, template){
 
         var View = Backbone.View.extend({
             // The DOM Element associated with this view
@@ -32,7 +32,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
             render: function() {
                 var data = this.model.toJSON();
 
-                jQuery.extend(data, {
+                $.extend(data, {
                     SCHEMA_STATUS: this.model.SCHEMA_STATUS
                 });
 
