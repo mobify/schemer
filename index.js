@@ -95,7 +95,6 @@ app.post('/schema', function(req, res) {
 app.get('/context', function(req, res) {
     // TODO: Path should be generated via configuration option
     var generatorPath = SERVER_URL + CONTEXT_MOCKER;
-    var paths = req.query;
 
     var viewName = req.query.viewName;
 
