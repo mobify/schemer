@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 
+// Schemer Settings
 const SERVER_PORT = 3000;
 const SERVER_URL = 'http://localhost:3000/';
-const MOCK_VIEW_PATH = 'phantom/index.html';
+
+// Generates context for a given view with a fixture
+const CONTEXT_MOCKER = 'phantom/index.html';
 
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
+var path = require('path');
 
 var fs = require('fs');
 
@@ -15,17 +19,18 @@ var fs = require('fs');
 app.use('/', express.static('.'));
 app.use('/tests/', express.static('/tests'));
 
-// Schemer paths
+// Schemer app paths
 app.use('/schemer/', express.static(__dirname + '/app'));
 app.use('/node_modules/', express.static(__dirname + '/node_modules'));
 app.use('/phantom/', express.static(__dirname + '/phantom'));
 
-// for parsing application/x-www-form-urlencoded
+// For parsing application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({
     extended: true,
     limit: '1mb'
 }));
 
+// List all Adaptive.js views in the project
 app.get('/views', function(req, res) {
     fs.readdir('./adaptation/views', function(err, files) {
         res.send(files);
@@ -52,6 +57,7 @@ app.get('/schema', function(req, res) {
     }
 });
 
+// Save a new/updated schema
 app.post('/schema', function(req, res) {
     // Save to schema store
     var body = req.body;
@@ -73,7 +79,7 @@ app.post('/schema', function(req, res) {
 // Get context for a given view
 app.get('/context', function(req, res) {
     // TODO: Path should be generated via configuration option
-    var generatorPath = SERVER_URL + MOCK_VIEW_PATH;
+    var generatorPath = SERVER_URL + CONTEXT_MOCKER;
     var paths = req.query;
 
     var viewPath = paths.viewPath;
@@ -83,10 +89,8 @@ app.get('/context', function(req, res) {
     var pathString = '#viewPath=' + viewPath +
         '&fixturePath=text!' + fixturePath;
 
-    var path = require('path');
     var childProcess = require('child_process');
-    var phantomjs = require('phantomjs');
-    var phantomPath = phantomjs.path;
+    var phantomPath = require('phantomjs').path;
 
     var getContext = function() {
         // First verify fixture exists

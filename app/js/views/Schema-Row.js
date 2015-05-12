@@ -10,15 +10,12 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
     function($, _, Backbone, Schema, template){
 
         var View = Backbone.View.extend({
-            // The DOM Element associated with this view
             tagName: 'tr',
 
-            // View constructor
             initialize: function(options) {
                 this.listenTo(this.model, 'change', this.render);
                 this.router = options.router;
 
-                // Calls the view's render method
                 this.render();
             },
 
@@ -37,11 +34,8 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 });
 
                 // TODO: Upgrade Lodash to latest version
-                // Setting the view's template property using the Underscore template method
                 this.template = _.template(template, data);
 
-                // Dynamically updates the UI with the view's template
-                //console.log('El: ', this.$el);
                 this.$el.html(this.template);
 
                 // Maintains chainability
@@ -59,7 +53,6 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
 
         });
 
-        // Returns the View class
         return View;
 
     }

@@ -1,4 +1,9 @@
-// Uh...not sure why we need the .js
+// Context Mocker
+// --------------
+//
+// Generates the context for a given view and fixture.
+
+// Uh...not sure why this doesn't work without the .js
 require(['/tests/runner/config.js'], function() {
     require(['require', '$', 'lodash', 'lib/documentFactory',
             'adaptivejs/defaults', 'adaptivejs/view'],
@@ -40,7 +45,7 @@ require(['/tests/runner/config.js'], function() {
 
                 ctx = formatContext(context);
 
-                // Let the server know we're done
+                // Let the Schemer server know we're done
                 window.callPhantom && window.callPhantom(ctx);
             };
 

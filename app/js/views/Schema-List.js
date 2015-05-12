@@ -10,7 +10,6 @@ define(['jquery', 'underscore', 'backbone', 'backbone-models/Schema',
     function($, _, Backbone, Schema, template, SchemaRowView){
 
         var View = Backbone.View.extend({
-            // View constructor
             initialize: function(options) {
                 this.listenTo(this.model, 'add', this.addOne);
 
@@ -21,7 +20,6 @@ define(['jquery', 'underscore', 'backbone', 'backbone-models/Schema',
                 this.fetch();
             },
 
-            // View Event Handlers
             events: {
             },
 
@@ -46,20 +44,16 @@ define(['jquery', 'underscore', 'backbone', 'backbone-models/Schema',
                 });
             },
 
-            // Renders the view's template to the UI
             render: function() {
-                // Setting the view's template property using the Underscore template method
                 this.template = _.template(template, {});
 
                 this.$el.html(this.template);
 
-                // Maintains chainability
                 return this;
             }
 
         });
 
-        // Returns the View class
         return View;
 
     }

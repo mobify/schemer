@@ -1,7 +1,7 @@
 // Schema Verify
 // -------------
 //
-// Verifies the stored schema against the
+// Verifies the stored schema against the new generated context.
 
 define(['jquery', 'backbone', 'backbone-models/Schema',
         'text!backbone-templates/schema-verify.html', 'jsondiffpatch',
@@ -169,7 +169,6 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
 
         });
 
-        // Returns the View class
         return View;
 
     }

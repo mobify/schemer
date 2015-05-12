@@ -11,30 +11,6 @@ define(['jquery', 'backbone', 'toastr'],
             ERROR: 'error'
         };
 
-        //var formatContext = function(context) {
-        //    var cache = [];
-        //
-        //    // Handle circular references within the context, eg. with DOM
-        //    // nodes, which are inherently circular
-        //    var getValue = function (key, value) {
-        //        if (typeof value === 'object' && value !== null) {
-        //            if (value.nodeType) {
-        //                // DOM objects
-        //                return value.outerHTML;
-        //            } else if (cache.indexOf(value) !== -1) {
-        //                // Circular reference found, discard key
-        //                return;
-        //            }
-        //            // Store value in our collection
-        //            cache.push(value);
-        //        }
-        //
-        //        return value;
-        //    };
-        //
-        //    return JSON.stringify(context, getValue, 2);
-        //};
-
         // Generate context by running the fixture through the project view
         var generateContext = function(viewName, cb) {
             const VIEW_DIR = 'adaptation/views/';
@@ -173,19 +149,6 @@ define(['jquery', 'backbone', 'toastr'],
                         model.fetch();
                     });
                 }
-            },
-
-            // TODO: Not firing! Fix.
-            validate: function(attrs) {
-                //if (attrs.context) {
-                //    try {
-                //        if (!JSON.parse(attrs.context).length) {
-                //            return 'Missing context!';
-                //        }
-                //    } catch(e) {
-                //        return 'Attempting to save invalid context';
-                //    }
-                //}
             }
 
         });
