@@ -35,11 +35,19 @@ define(['jquery', 'underscore', 'backbone', 'backbone-models/Schema',
                     url: '/views',
                     method: 'GET',
                     success: function(data) {
+                        if (!data || !data.length) {
+                            toastr.error('View list is empty or invalid!');
+                            return;
+                        }
+
                         $.each(data, function(idx, name) {
                             schemata.add(new Schema({
                                 name: name.replace(/\.js/, '')
                             }));
                         });
+                    },
+                    error: function() {
+                        toastr.error('Error fetching view list!');
                     }
                 });
             },

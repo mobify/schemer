@@ -37,6 +37,10 @@ app.use(bodyParser.urlencoded({
 // List all Adaptive.js views in the project
 app.get('/views', function(req, res) {
     fs.readdir('./adaptation/views', function(err, files) {
+        if (err || !files || !files.length) {
+            res.status(500).send('Error fetching view list.');
+        }
+
         res.send(files);
     });
 });
@@ -66,17 +70,24 @@ app.post('/schema', function(req, res) {
     // Save to schema store
     var body = req.body;
 
+    // Try to look up directory
+    try {
+        stats = fs.lstatSync(path.dirname(body.path));
+    }
+    catch (e) {
+        // We assume this is because a directory doesn't exist. Create it.
+        fs.mkdirSync(path.dirname(body.path));
+    }
+
+    // Save to schema folder
     if (body.path && body.context) {
-        // Save to schema folder
         fs.writeFile(body.path, body.context, function(err) {
             if (err) { throw err; }
 
-            res.send('Your offering pleases me.');
+            res.send('Schema saved.');
         });
     } else {
-        res.status(400)
-            .send('What is the meaning of this travesty?! ' +
-            'Either the path or context is missing.');
+        res.status(400).send('Either the path or context is missing.');
     }
 });
 
@@ -117,7 +128,10 @@ app.get('/context', function(req, res) {
             console.log('Spawning PhantomJS');
 
             // Don't spawn every time, if possible
-            childProcess.execFile(phantomPath, args, function(err, stdout, stderr) {
+            childProcess.execFile(phantomPath, args, {
+                // Expect max context string length.
+                maxBuffer: 1024 * 1024
+            }, function(err, stdout, stderr) {
                 if (err) {
                     throw err;
                 }
