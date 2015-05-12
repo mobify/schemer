@@ -1,0 +1,9 @@
+<td><%- name %></td>
+<td><%- status %></td>
+<td>
+    <% if (status === SCHEMA_STATUS.MISSING) { %>
+        <button type="button" class="js-create button-primary">Create</button>
+    <% } else if(status === SCHEMA_STATUS.RETRIEVED) { %>
+        <button type="button" class="js-verify">Verify</button>
+    <% } %>
+</td>

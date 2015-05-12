@@ -1,0 +1,47 @@
+.container {
+    margin: 20px;
+}
+
+#container {
+    width: 100%;
+}
+
+.schema-list {
+    width: 100%;
+}
+
+.schema-row {
+    margin-bottom: 20px;
+}
+
+.legend.added {
+    background: #bbffbb;
+}
+
+.legend.removed {
+    background: #ffbbbb;
+    text-decoration: line-through;
+}
+
+/* Note: Duplicated class to increase specificity */
+.jsondiffpatch-delta.jsondiffpatch-node {
+    display: block;
+    overflow: auto;
+}
+
+.jsondiffpatch-delta li {
+    margin-bottom: 0;
+}
+
+.jsondiffpatch-patch-container {
+    overflow: hidden;
+}
+
+.jsondiffpatch-patch-container button {
+    float: right;
+    display: block;
+}
+
+.jsondiffpatch-unchanged {
+    display: none;
+}

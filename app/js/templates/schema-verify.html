@@ -1,0 +1,18 @@
+<h1>Verify Schema</h1>
+
+<div class="row schema-row">
+    <div id="js-schema-verify" class="one-full column">
+        <% if (!delta) { %>
+            <p>No differences found!</p>
+        <% } else { %>
+        <h4>Differences between saved and generated context</h4>
+        <div id="js-visual-diff"><%= diff %></div>
+        <% } %>
+    </div>
+</div>
+
+<div class="row">
+    <div class="one-full column">
+        <button type="button" class="js-back-to-list">Back</button>
+    </div>
+</div>
