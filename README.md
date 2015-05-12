@@ -1,6 +1,8 @@
 Schemer
 =======
 
+![Image](app/images/schemer.gif)
+
 Schema comparison tool for Adaptive.js 1.0 projects.
 
 ## What's a schema?
