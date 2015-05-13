@@ -48,7 +48,7 @@
 
 .jsondiffpatch-patch-container {
     width: 100%;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .jsondiffpatch-patch-container button {

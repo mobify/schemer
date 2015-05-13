@@ -25,8 +25,5 @@ require.config({
             'deps': ['formatters'],
             'exports': 'jsondiffpatch'
         }
-    },
-    glob: {
-        middlewarePathPrefix: '/'
     }
 });
