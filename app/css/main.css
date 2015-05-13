@@ -28,6 +28,16 @@
     color: #fff;
 }
 
+.js-accept-change:hover:after {
+    content: '';
+    border-bottom: 1px solid #999;
+    position: absolute;
+    display: block;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
 .legend.added {
     background: #bbffbb;
 }
@@ -48,6 +58,7 @@
 }
 
 .jsondiffpatch-patch-container {
+    position: relative;
     width: 100%;
     overflow: auto;
 }
