@@ -57,8 +57,42 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
             },
 
             // TODO: Backbone should do this automatically. No $.ajax needed.
-            fetch: function() {
+            fetch: function(savedContext) {
                 var model = this;
+
+                var updateDelta = function(savedContext) {
+                    var generatedContext = model.get('generatedContext');
+
+                    if (!generatedContext) {
+                        generateContext(model.get('name'), function(generatedContext) {
+                            if (!generatedContext) { return; }
+
+                            var delta = jsondiffpatch.diff(savedContext, generatedContext);
+
+                            model.set({
+                                status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
+                                savedContext: savedContext,
+                                generatedContext: generatedContext
+                            });
+
+                            model.trigger('ready');
+                        });
+                    } else {
+                        var delta = jsondiffpatch.diff(savedContext, generatedContext);
+
+                        model.set({
+                            status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
+                            savedContext: savedContext
+                        });
+
+                        model.trigger('ready');
+                    }
+                };
+
+                if (savedContext) {
+                    updateDelta(savedContext);
+                    return;
+                }
 
                 $.ajax({
                     url: model.url,
@@ -68,8 +102,6 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                     },
                     success: function(data) {
                         var savedContext;
-                        var status;
-                        var generatedContext = model.get('generatedContext');
 
                         try {
                             savedContext = JSON.parse(data);
@@ -79,30 +111,7 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                             // context
                         }
 
-                        if (!generatedContext) {
-                            generateContext(model.get('name'), function(generatedContext) {
-                                if (!generatedContext) { return; }
-
-                                var delta = jsondiffpatch.diff(savedContext, generatedContext);
-
-                                model.set({
-                                    status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
-                                    savedContext: savedContext,
-                                    generatedContext: generatedContext
-                                });
-
-                                model.trigger('ready');
-                            });
-                        } else {
-                            var delta = jsondiffpatch.diff(savedContext, generatedContext);
-
-                            model.set({
-                                status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
-                                savedContext: savedContext
-                            });
-
-                            model.trigger('ready');
-                        }
+                        updateDelta(savedContext);
                     },
                     error: function(xhr) {
                         model.set({
@@ -122,6 +131,10 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                 generateContext(this.get('name'), function(context) {
                     if (!context) { return; }
 
+                    model.set({
+                        generatedContext: context
+                    });
+
                     // TODO: Add { wait: true }?
                     model.save({
                         savedContext: context
@@ -137,14 +150,15 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                         path: 'schema/' + this.get('name') + '.json',
                         context: JSON.stringify(attrs.savedContext)
                     }, function (data) {
-                        console.log('Cat overlord says: ', data);
                         toastr.info('Schema saved');
 
                         /* TODO: Just trigger change doesn't correctly seem to
                          trigger a UI update
                          */
                         model.trigger('change');
-                        model.fetch();
+
+                        // Don't bother fetching the saved context again
+                        model.fetch(attrs.savedContext);
                     });
                 }
             }
