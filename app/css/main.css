@@ -24,7 +24,12 @@
 }
 
 .schema-mismatch {
-    background-color: #BB3838;
+    background-color: #bb4947;
+    color: #fff;
+}
+
+.schema-mismatch:hover {
+    background: #bb2725;
     color: #fff;
 }
 
