@@ -13,8 +13,8 @@ require.config({
 
 require(['test-config'], function() {
     // TODO: Less eww. Feed into page via PhantomJS.
-    var viewPath = window.viewPath || document.location.hash.match(/viewPath=([\w//]+)/)[1];
-    var fixturePath = window.fixturePath || document.location.hash.match(/fixturePath=(text![\w//\.!]+)/)[1];
+    var viewPath = window.viewPath || document.location.hash.match(/viewPath=([\w//\-]+)/)[1];
+    var fixturePath = window.fixturePath || document.location.hash.match(/fixturePath=(text![\w//\.!\-]+)/)[1];
 
     require([
         '$',

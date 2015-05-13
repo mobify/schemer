@@ -135,9 +135,18 @@ app.get('/context', function(req, res) {
                     throw err;
                 }
 
-                res.send({
-                    generatedContext: JSON.parse(stdout)
-                });
+                var ctx;
+
+                try {
+                    ctx = JSON.parse(stdout);
+
+                    res.send({
+                        generatedContext: ctx
+                    });
+                } catch(e) {
+                    console.log(e, e.message, stdout);
+                    res.status(500).send('Unexpected output while generating context: ' + stdout);
+                }
             });
         });
     };

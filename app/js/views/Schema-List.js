@@ -4,66 +4,66 @@
 // View that manages display of the schema list. Contains multiple Schema Row
 // child views.
 
-define(['jquery', 'underscore', 'backbone', 'backbone-models/Schema',
-        'text!backbone-templates/schema-list.html', 'backbone-views/Schema-Row'],
+define([
+    'jquery', 'underscore', 'backbone', 'backbone-models/Schema',
+    'text!backbone-templates/schema-list.html', 'backbone-views/Schema-Row',
+    'toastr'
+],
+function($, _, Backbone, Schema, template, SchemaRowView, toastr){
 
-    function($, _, Backbone, Schema, template, SchemaRowView){
+    var View = Backbone.View.extend({
+        initialize: function(options) {
+            this.listenTo(this.model, 'add', this.addOne);
 
-        var View = Backbone.View.extend({
-            initialize: function(options) {
-                this.listenTo(this.model, 'add', this.addOne);
+            this.router = options.router;
 
-                this.router = options.router;
+            // Calls the view's render method
+            this.render();
+            this.fetch();
+        },
 
-                // Calls the view's render method
-                this.render();
-                this.fetch();
-            },
+        events: {
+        },
 
-            events: {
-            },
+        addOne: function (schema) {
+            var view = new SchemaRowView({ model: schema, router: this.router });
+            this.$el.find('tbody').append(view.render().el);
+        },
 
-            addOne: function (schema) {
-                var view = new SchemaRowView({ model: schema, router: this.router });
-                this.$el.find('tbody').append(view.render().el);
-            },
+        fetch: function() {
+            var schemata = this.model;
 
-            fetch: function() {
-                var schemata = this.model;
-
-                $.ajax({
-                    url: '/views',
-                    method: 'GET',
-                    success: function(data) {
-                        if (!data || !data.length) {
-                            toastr.error('View list is empty or invalid!');
-                            return;
-                        }
-
-                        $.each(data, function(idx, name) {
-                            schemata.add(new Schema({
-                                name: name.replace(/\.js/, '')
-                            }));
-                        });
-                    },
-                    error: function() {
-                        toastr.error('Error fetching view list!');
+            $.ajax({
+                url: '/views',
+                method: 'GET',
+                success: function(data) {
+                    if (!data || !data.length) {
+                        toastr.error('View list is empty or invalid!');
+                        return;
                     }
-                });
-            },
 
-            render: function() {
-                this.template = _.template(template, {});
+                    $.each(data, function(idx, name) {
+                        schemata.add(new Schema({
+                            name: name.replace(/\.js/, '')
+                        }));
+                    });
+                },
+                error: function() {
+                    toastr.error('Error fetching view list!');
+                }
+            });
+        },
 
-                this.$el.html(this.template);
+        render: function() {
+            this.template = _.template(template, {});
 
-                return this;
-            }
+            this.$el.html(this.template);
 
-        });
+            return this;
+        }
 
-        return View;
+    });
 
-    }
+    return View;
 
-);
+});
