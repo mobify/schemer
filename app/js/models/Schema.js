@@ -2,8 +2,8 @@
 // ------------
 //
 
-define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
-    function($, Backbone, toastr, jsondiffpatch) {
+define(['jquery', 'backbone', 'jsondiffpatch'],
+    function($, Backbone, jsondiffpatch) {
         var SCHEMA_STATUS = {
             PENDING: 'fetching',
             MISMATCH: 'changed',
@@ -18,7 +18,7 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
             var generatedContext = model.get('generatedContext');
 
             if (!generatedContext) {
-                generateContext(model.get('name'), function(generatedContext) {
+                model.generateContext(model.get('name'), function(generatedContext) {
                     if (!generatedContext) { return; }
 
                     var delta = jsondiffpatch.diff(savedContext, generatedContext);
@@ -41,28 +41,6 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
 
                 model.trigger('ready');
             }
-        };
-
-        // Generate context by running the fixture through the project view
-        var generateContext = function(viewName, cb) {
-            $.ajax({
-                url: '/context',
-                type: 'GET',
-                data: {
-                    viewPath: 'adaptation/views/' + viewName,
-                    fixturePath: 'tests/fixtures/' + viewName + '.html'
-                },
-                success: function(data) {
-                    if (!data) {
-                        toastr.error('Error generating context, fixture doesn\'t exist');
-                    }
-
-                    cb(data.generatedContext);
-                },
-                error: function(xhr, status) {
-                    toastr.error('Error retrieving generated view context: ' + status);
-                }
-            });
         };
 
         var Model = Backbone.Model.extend({
@@ -124,17 +102,40 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                                 savedContext: null
                             });
 
-                            toastr.error('Invalid schema');
+                            model.trigger('error', 'Invalid schema');
                         }
                     },
-                    error: function() {
+                    error: function(xhr) {
                         model.set({
                             status: SCHEMA_STATUS.ERROR,
                             savedContext: null
                         });
 
-                        // Used to let
-                        model.trigger('ready');
+                        model.trigger('error', 'Error retrieving schema: ' + xhr.responseText);
+                    }
+                });
+            },
+
+            // Generate context by running the fixture through the project view
+            generateContext: function(viewName, cb) {
+                var model = this;
+
+                $.ajax({
+                    url: '/context',
+                    type: 'GET',
+                    data: {
+                        viewPath: 'adaptation/views/' + viewName,
+                        fixturePath: 'tests/fixtures/' + viewName + '.html'
+                    },
+                    success: function(data) {
+                        if (!data) {
+                            model.trigger('error', 'Error generating context, fixture doesn\'t exist');
+                        }
+
+                        cb(data.generatedContext);
+                    },
+                    error: function(xhr, status) {
+                        model.trigger('error', 'Error retrieving generated view context: ' + status);
                     }
                 });
             },
@@ -142,7 +143,7 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
             createContext: function() {
                 var model = this;
 
-                generateContext(this.get('name'), function(context) {
+                model.generateContext(this.get('name'), function(context) {
                     if (!context) { return; }
 
                     model.set({
@@ -168,7 +169,7 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                             savedContext: attrs.savedContext
                         });
 
-                        toastr.info('Schema saved');
+                        model.trigger('saved');
                     });
                 }
             }

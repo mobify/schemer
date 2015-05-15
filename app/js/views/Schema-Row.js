@@ -4,16 +4,19 @@
 // Contains the representation of a single row in the schema list, and its
 // associated action buttons (create, verify, etc.)
 
-define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
+define(['jquery', 'lodash', 'toastr', 'backbone', 'backbone-models/Schema',
         'text!backbone-templates/schema-row.html'],
 
-    function($, _, Backbone, Schema, template){
+    function($, _, toastr, Backbone, Schema, template){
 
         var View = Backbone.View.extend({
             tagName: 'tr',
 
             initialize: function(options) {
                 this.listenTo(this.model, 'change', this.render);
+                this.listenTo(this.model, 'error', this.schemaError);
+                this.listenTo(this.model, 'saved', this.schemaSaved);
+
                 this.router = options.router;
 
                 this.render();
@@ -41,6 +44,14 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
 
                 // Maintains chainability
                 return this;
+            },
+
+            schemaError: function(msg) {
+                toastr.error(msg);
+            },
+
+            schemaSaved: function() {
+                toastr.info('Schema saved');
             },
 
             refreshSchema: function() {
