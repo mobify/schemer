@@ -52,6 +52,7 @@ define(['jquery', 'lodash', 'toastr', 'backbone', 'backbone-models/Schema',
 
             schemaSaved: function() {
                 toastr.info('Schema saved');
+                this.render();
             },
 
             refreshSchema: function() {

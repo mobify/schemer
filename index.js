@@ -109,10 +109,13 @@ app.get('/views', function(req, res) {
 // Return requested schema
 app.get('/schema', function(req, res) {
     var schemaPath = './' + req.query.path;
+    var viewPath = req.query.viewPath;
+    var fixturePath = req.query.fixturePath;
 
     if (schemaPath) {
-        fs.readFile(schemaPath, function(err, data) {
+        fs.readFile(schemaPath, function(err, fileContents) {
             // Not a real error
+            var savedContext;
             var is404 = err && err.code === 'ENOENT';
 
             if (err && !is404) {
@@ -120,7 +123,19 @@ app.get('/schema', function(req, res) {
             } else if(is404) {
                 res.send(false);
             } else {
-                res.send(data);
+                savedContext = JSON.parse(fileContents);
+
+                getContext(viewPath, fixturePath, function(err, generatedContext) {
+                    if (err) {
+                        res.status(500).send(err);
+                        return;
+                    }
+
+                    res.send({
+                        generatedContext: generatedContext,
+                        savedContext: savedContext
+                    });
+                });
             }
         });
     } else {
@@ -159,14 +174,14 @@ app.get('/context', function(req, res) {
     var viewPath = req.query.viewPath;
     var fixturePath = req.query.fixturePath;
 
-    getContext(viewPath, fixturePath, function(err, ctx) {
+    getContext(viewPath, fixturePath, function(err, generatedContext) {
         if (err) {
             res.status(500).send(err);
             return;
         }
 
         res.send({
-            generatedContext: ctx
+            generatedContext: generatedContext
         });
     });
 });

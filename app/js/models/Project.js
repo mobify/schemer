@@ -11,8 +11,11 @@ define(['jquery', 'backbone', 'toastr'],
             el: '#project',
 
             defaults: {
-                name: 'Project',
-                framework: 'adaptive.js 1.0.0'
+                name: 'Schemer',
+                framework: {
+                    name: '',
+                    version: ''
+                }
             },
 
             initialize: function() {

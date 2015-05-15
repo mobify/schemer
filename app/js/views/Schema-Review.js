@@ -105,7 +105,6 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
                 var generatedContext = sanitizeHtml(_.cloneDeep(this.model.get('generatedContext')));
 
                 if (!savedContext) {
-                    // TODO: Better error display
                     toastr.error('Saved context not found!');
                 } else if(!generatedContext) {
                     toastr.error('Generated context not found!');
@@ -123,6 +122,7 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
                  */
 
                 this.template = _.template(template, {
+                    name: this.model.get('name'),
                     delta: delta,
                     diff: jsondiffpatch.formatters.format(delta, savedContext)
                 });

@@ -12,37 +12,6 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
             ERROR: 'error'
         };
 
-        // Verify if a schema's changed
-        var updateDelta = function(savedContext) {
-            var model = this;
-            var generatedContext = model.get('generatedContext');
-
-            if (!generatedContext) {
-                model.generateContext(model.get('name'), function(generatedContext) {
-                    if (!generatedContext) { return; }
-
-                    var delta = jsondiffpatch.diff(savedContext, generatedContext);
-
-                    model.set({
-                        status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
-                        savedContext: savedContext,
-                        generatedContext: generatedContext
-                    });
-
-                    model.trigger('ready');
-                });
-            } else {
-                var delta = jsondiffpatch.diff(savedContext, generatedContext);
-
-                model.set({
-                    status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
-                    savedContext: savedContext
-                });
-
-                model.trigger('ready');
-            }
-        };
-
         var Model = Backbone.Model.extend({
 
             url: '/schema/',
@@ -66,24 +35,19 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
                 model.fetch();
             },
 
-            // TODO: Backbone should do this automatically. No $.ajax needed.
-            fetch: function(savedContext) {
+            fetch: function() {
                 var model = this;
-
-                if (savedContext) {
-                    updateDelta.call(model, savedContext);
-                    return;
-                }
+                var viewName = model.get('name');
 
                 $.ajax({
                     url: model.url,
                     type: 'GET',
                     data: {
-                        path: 'schema/' + model.get('name') + '.json'
+                        path: 'schema/' + model.get('name') + '.json',
+                        viewPath: 'adaptation/views/' + viewName,
+                        fixturePath: 'tests/fixtures/' + viewName + '.html'
                     },
                     success: function(result) {
-                        var savedContext;
-
                         // Schema hasn't been created yet
                         if (!result) {
                             model.set({
@@ -94,13 +58,18 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
                         }
 
                         try {
-                            savedContext = JSON.parse(result);
-                            updateDelta.call(model, savedContext);
+                            model
+                                .set({
+                                    savedContext: result.savedContext,
+                                    generatedContext: result.generatedContext
+                                })
+                                .verifySchema();
                         } catch(e) {
-                            model.set({
-                                status: SCHEMA_STATUS.ERROR,
-                                savedContext: null
-                            });
+                            model
+                                .set({
+                                    status: SCHEMA_STATUS.ERROR,
+                                    savedContext: null
+                                });
 
                             model.trigger('error', 'Invalid schema');
                         }
@@ -116,9 +85,24 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
                 });
             },
 
-            // Generate context by running the fixture through the project view
-            generateContext: function(viewName, cb) {
+            verifySchema: function() {
                 var model = this;
+                var savedContext = model.get('savedContext');
+                var generatedContext = model.get('generatedContext');
+
+                var delta = jsondiffpatch.diff(savedContext, generatedContext);
+
+                model.set({
+                    status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH
+                });
+
+                model.trigger('ready');
+            },
+
+            // Generate context by running the fixture through the project view
+            generateContext: function(cb) {
+                var model = this;
+                var viewName = model.get('name');
 
                 $.ajax({
                     url: '/context',
@@ -143,16 +127,13 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
             createContext: function() {
                 var model = this;
 
-                model.generateContext(this.get('name'), function(context) {
+                model.generateContext(function(context) {
                     if (!context) { return; }
 
-                    model.set({
-                        generatedContext: context
-                    });
-
-                    // TODO: Add { wait: true }?
                     model.save({
-                        savedContext: context
+                        generatedContext: context,
+                        savedContext: context,
+                        status: SCHEMA_STATUS.MATCH
                     });
                 });
             },
@@ -165,9 +146,12 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
                         path: 'schema/' + this.get('name') + '.json',
                         context: JSON.stringify(attrs.savedContext)
                     }, function () {
-                        model.set({
-                            savedContext: attrs.savedContext
-                        });
+                        model
+                            .set({
+                                savedContext: attrs.savedContext,
+                                generatedContext: attrs.generatedContext
+                            })
+                            .verifySchema();
 
                         model.trigger('saved');
                     });
