@@ -17,10 +17,11 @@
 .schema-name {
     border: none;
     text-transform: lowercase;
+    margin-bottom: 0;
 }
 
 .schema-row--action {
-    height: 72px;
+    height: 48px;
     text-align: center;
 }
 

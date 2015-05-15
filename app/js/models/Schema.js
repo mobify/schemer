@@ -6,10 +6,41 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
     function($, Backbone, toastr, jsondiffpatch) {
         var SCHEMA_STATUS = {
             PENDING: 'fetching',
-            MISMATCH: 'mismatch',
+            MISMATCH: 'changed',
             MATCH: 'match',
             MISSING: 'missing',
             ERROR: 'error'
+        };
+
+        // Verify if a schema's changed
+        var updateDelta = function(savedContext) {
+            var model = this;
+            var generatedContext = model.get('generatedContext');
+
+            if (!generatedContext) {
+                generateContext(model.get('name'), function(generatedContext) {
+                    if (!generatedContext) { return; }
+
+                    var delta = jsondiffpatch.diff(savedContext, generatedContext);
+
+                    model.set({
+                        status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
+                        savedContext: savedContext,
+                        generatedContext: generatedContext
+                    });
+
+                    model.trigger('ready');
+                });
+            } else {
+                var delta = jsondiffpatch.diff(savedContext, generatedContext);
+
+                model.set({
+                    status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
+                    savedContext: savedContext
+                });
+
+                model.trigger('ready');
+            }
         };
 
         // Generate context by running the fixture through the project view
@@ -60,37 +91,8 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
             fetch: function(savedContext) {
                 var model = this;
 
-                var updateDelta = function(savedContext) {
-                    var generatedContext = model.get('generatedContext');
-
-                    if (!generatedContext) {
-                        generateContext(model.get('name'), function(generatedContext) {
-                            if (!generatedContext) { return; }
-
-                            var delta = jsondiffpatch.diff(savedContext, generatedContext);
-
-                            model.set({
-                                status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
-                                savedContext: savedContext,
-                                generatedContext: generatedContext
-                            });
-
-                            model.trigger('ready');
-                        });
-                    } else {
-                        var delta = jsondiffpatch.diff(savedContext, generatedContext);
-
-                        model.set({
-                            status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH,
-                            savedContext: savedContext
-                        });
-
-                        model.trigger('ready');
-                    }
-                };
-
                 if (savedContext) {
-                    updateDelta(savedContext);
+                    updateDelta.call(model, savedContext);
                     return;
                 }
 
@@ -111,7 +113,7 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                             // context
                         }
 
-                        updateDelta(savedContext);
+                        updateDelta.call(model, savedContext);
                     },
                     error: function(xhr) {
                         model.set({
@@ -149,16 +151,12 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                     $.post(this.url, {
                         path: 'schema/' + this.get('name') + '.json',
                         context: JSON.stringify(attrs.savedContext)
-                    }, function (data) {
+                    }, function () {
+                        model.set({
+                            savedContext: attrs.savedContext
+                        });
+
                         toastr.info('Schema saved');
-
-                        /* TODO: Just trigger change doesn't correctly seem to
-                         trigger a UI update
-                         */
-                        model.trigger('change');
-
-                        // Don't bother fetching the saved context again
-                        model.fetch(attrs.savedContext);
                     });
                 }
             }
