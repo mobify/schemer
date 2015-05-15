@@ -49,7 +49,8 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                 url: '/context',
                 type: 'GET',
                 data: {
-                    viewName: viewName
+                    viewPath: 'adaptation/views/' + viewName,
+                    fixturePath: 'tests/fixtures/' + viewName + '.html'
                 },
                 success: function(data) {
                     if (!data) {
@@ -102,22 +103,33 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
                     data: {
                         path: 'schema/' + model.get('name') + '.json'
                     },
-                    success: function(data) {
+                    success: function(result) {
                         var savedContext;
 
-                        try {
-                            savedContext = JSON.parse(data);
-                        } catch(e) {
-                            // This is fine - we'll see that our saved context
-                            // (which'll be empty) is different from generated
-                            // context
+                        // Schema hasn't been created yet
+                        if (!result) {
+                            model.set({
+                                status: SCHEMA_STATUS.MISSING,
+                                savedContext: null
+                            });
+                            return;
                         }
 
-                        updateDelta.call(model, savedContext);
+                        try {
+                            savedContext = JSON.parse(result);
+                            updateDelta.call(model, savedContext);
+                        } catch(e) {
+                            model.set({
+                                status: SCHEMA_STATUS.ERROR,
+                                savedContext: null
+                            });
+
+                            toastr.error('Invalid schema');
+                        }
                     },
-                    error: function(xhr) {
+                    error: function() {
                         model.set({
-                            status: xhr.status === 404 ? SCHEMA_STATUS.MISSING : SCHEMA_STATUS.ERROR,
+                            status: SCHEMA_STATUS.ERROR,
                             savedContext: null
                         });
 

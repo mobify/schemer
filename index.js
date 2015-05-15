@@ -18,6 +18,44 @@ var phantomPath = require('phantomjs').path;
 
 var fs = require('fs');
 
+var getContext = function(viewPath, fixturePath, cb) {
+    var generatorPath = SERVER_URL + CONTEXT_MOCKER;
+    var pathString = '#viewPath=' + viewPath + '&fixturePath=text!' + fixturePath;
+
+    // First verify fixture exists
+    fs.readFile(fixturePath, function(err, fixture) {
+        if (err) {
+            cb('Missing fixture');
+            return;
+        }
+
+        var ctx;
+        var args = [
+            path.join(__dirname, '/phantom/main.js'),
+            generatorPath + pathString
+        ];
+
+        // TODO: Reuse PhantomJS instance
+        childProcess.execFile(phantomPath, args, {
+            // Max context string length
+            maxBuffer: 1024 * 1024
+        }, function(err, stdout, stderr) {
+            if (err || stderr) {
+                cb(err.message || stderr);
+                return;
+            }
+
+            try {
+                ctx = JSON.parse(stdout);
+
+                cb(null, ctx);
+            } catch(e) {
+                cb('Unexpected output while generating context: ' + stdout);
+            }
+        });
+    });
+};
+
 // Serve the Adaptive.js project whose folder we're in
 app.use('/', express.static('.'));
 app.use('/tests/', express.static('/tests'));
@@ -74,11 +112,13 @@ app.get('/schema', function(req, res) {
 
     if (schemaPath) {
         fs.readFile(schemaPath, function(err, data) {
-            // Missing file (not an actual error), or error?
-            var errorCode = err && err.code === 'ENOENT' ? 404 : 500;
+            // Not a real error
+            var is404 = err && err.code === 'ENOENT';
 
-            if (err) {
-                res.status(errorCode).send('Error reading schema');
+            if (err && !is404) {
+                res.status(500).send('Error reading schema');
+            } else if(is404) {
+                res.send(false);
             } else {
                 res.send(data);
             }
@@ -116,69 +156,19 @@ app.post('/schema', function(req, res) {
 
 // Get context for a given view
 app.get('/context', function(req, res) {
-    // TODO: Path should be generated via configuration option
-    var generatorPath = SERVER_URL + CONTEXT_MOCKER;
+    var viewPath = req.query.viewPath;
+    var fixturePath = req.query.fixturePath;
 
-    var viewName = req.query.viewName;
+    getContext(viewPath, fixturePath, function(err, ctx) {
+        if (err) {
+            res.status(500).send(err);
+            return;
+        }
 
-    /* TODO: Template these as a configuration setting, so that we can swap
-    out for Adaptive 2.0
-     */
-    var viewPath = 'adaptation/views/' + viewName;
-    var fixturePath = 'tests/fixtures/' + viewName + '.html';
-
-    var pathString = '#viewPath=' + viewPath + '&fixturePath=text!' + fixturePath;
-
-    var getContext = function() {
-        // First verify fixture exists
-        fs.readFile(fixturePath, function(err, fixture) {
-            var is404 = err && err.code === 'ENOENT';
-
-            if (err && !is404) {
-                res.status(500).send('Error reading fixture');
-                return;
-            } else if(err && is404) {
-                res.send(false);
-                return;
-            }
-
-            var args = [
-                path.join(__dirname, '/phantom/main.js'),
-                generatorPath + pathString
-            ];
-
-            console.log('Spawning PhantomJS');
-
-            // Don't spawn every time, if possible
-            childProcess.execFile(phantomPath, args, {
-                // Expect max context string length.
-                maxBuffer: 1024 * 1024
-            }, function(err, stdout, stderr) {
-                if (err) {
-                    throw err;
-                }
-
-                var ctx;
-
-                try {
-                    ctx = JSON.parse(stdout);
-
-                    res.send({
-                        generatedContext: ctx
-                    });
-                } catch(e) {
-                    console.log(e, e.message, stdout);
-                    res.status(500).send('Unexpected output while generating context: ' + stdout);
-                }
-            });
+        res.send({
+            generatedContext: ctx
         });
-    };
-
-    if (viewPath && fixturePath) {
-        getContext();
-    } else {
-        res.status(500).send('Missing view or fixture path!');
-    }
+    });
 });
 
 http.listen(SERVER_PORT, function() {
