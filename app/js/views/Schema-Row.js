@@ -63,7 +63,15 @@ define(['jquery', 'lodash', 'toastr', 'backbone', 'backbone-models/Schema',
                 this.model.createContext();
             },
 
+            setPending: function() {
+                this.model.set({
+                    status: this.model.SCHEMA_STATUS.PENDING
+                });
+                this.render();
+            },
+
             reviewSchema: function() {
+                this.setPending();
                 this.router.navigate('review-schema/' + this.model.get('name'),
                     { trigger: true });
             }
