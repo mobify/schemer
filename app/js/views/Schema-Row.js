@@ -21,6 +21,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
 
             // View Event Handlers
             events: {
+                'click .js-refresh': 'refreshSchema',
                 'click .js-create': 'createContext',
                 'click .js-review': 'reviewSchema'
             },
@@ -40,6 +41,10 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
 
                 // Maintains chainability
                 return this;
+            },
+
+            refreshSchema: function() {
+                this.model.fetch();
             },
 
             createContext: function() {

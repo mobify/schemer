@@ -36,13 +36,13 @@ function($, _, Backbone, Schema, template, SchemaRowView, toastr){
             $.ajax({
                 url: '/views',
                 method: 'GET',
-                success: function(data) {
-                    if (!data || !data.length) {
+                success: function(viewList) {
+                    if (!viewList || !viewList.length) {
                         toastr.error('View list is empty or invalid!');
                         return;
                     }
 
-                    $.each(data, function(idx, name) {
+                    $.each(viewList, function(idx, name) {
                         schemata.add(new Schema({
                             name: name.replace(/\.js/, '')
                         }));

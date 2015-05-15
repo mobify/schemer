@@ -35,7 +35,7 @@ define(['jquery', 'backbone', 'toastr', 'jsondiffpatch'],
 
         var Model = Backbone.Model.extend({
 
-            url: 'http://localhost:3000/schema/',
+            url: '/schema/',
 
             defaults: {
                 name: 'Uninitialized Schema',

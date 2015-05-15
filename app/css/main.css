@@ -14,6 +14,11 @@
     margin-bottom: 20px;
 }
 
+.schema-name {
+    border: none;
+    text-transform: lowercase;
+}
+
 .schema-row--action {
     height: 72px;
     text-align: center;

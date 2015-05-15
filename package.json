@@ -1,6 +1,6 @@
 {
   "name": "schemer",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Schema generation/comparison tool for Adaptive.js 1.0 projects",
   "main": "index.js",
   "scripts": {

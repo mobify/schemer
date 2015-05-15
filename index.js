@@ -34,14 +34,37 @@ app.use(bodyParser.urlencoded({
     limit: '1mb'
 }));
 
+// Get information about the project
+app.get('/project', function(req, res) {
+    fs.readFile('package.json', function(err, data) {
+        if (err) {
+            req.status(400).send('Cannot find project package.json file');
+            return;
+        }
+
+        var pjson = JSON.parse(data);
+
+        // TODO: Add Mobify.js compatibility
+        var framework = {
+                name: 'adaptivejs',
+                version: pjson.dependencies.adaptivejs
+            };
+
+        res.send({
+            name: pjson.name,
+            framework: framework
+        });
+    });
+});
+
 // List all Adaptive.js views in the project
 app.get('/views', function(req, res) {
-    fs.readdir('./adaptation/views', function(err, files) {
-        if (err || !files || !files.length) {
+    fs.readdir('./adaptation/views', function(err, views) {
+        if (err || !views || !views.length) {
             res.status(500).send('Error fetching view list.');
         }
 
-        res.send(files);
+        res.send(views);
     });
 });
 
