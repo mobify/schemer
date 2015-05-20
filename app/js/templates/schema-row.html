@@ -1,13 +1,25 @@
-<td><button type="button" class="js-refresh schema-name"><%- name %></button></td>
-<td><%- status %></td>
-<td class="schema-row--action">
+<td><%- name %></td>
+<td class="schema-status">
+    <% if (status === SCHEMA_STATUS.MATCH) { %>
+        <div class="schema-status--match">&#10003;</div>
+    <% } else if (status === SCHEMA_STATUS.MISMATCH || status === SCHEMA_STATUS.ERROR) { %>
+        <div class="schema-status--mismatch">x</div>
+    <% } else if (status === SCHEMA_STATUS.MATCH) { %>
+        <div class="schema-status--missing">n/a</div>
+    <% } else if (status === SCHEMA_STATUS.PENDING) { %>
+        <div class="schema-status--loading">.</div>
+    <% } else { %>
+        <div></div>
+    <% } %>
+</td>
+<td class="schema-action">
     <% if (status === SCHEMA_STATUS.MISSING) { %>
         <button type="button" class="js-create button-primary">Create</button>
-    <% } else if (status === SCHEMA_STATUS.PENDING) { %>
-        <span class="schema-loading">loading</span>
-    <% } else if(status === SCHEMA_STATUS.MATCH) { %>
-        <span class="schema-match">&#10003;</span>
     <% } else if(status === SCHEMA_STATUS.MISMATCH) { %>
-        <button type="button" class="js-review schema-mismatch">Review</button>
+        <button type="button" class="js-review schema-review">Review</button>
+    <% } %>
+
+    <% if(status === SCHEMA_STATUS.MATCH || status === SCHEMA_STATUS.MISMATCH) { %>
+        <button type="button" class="js-refresh">&#8635;</button>
     <% } %>
 </td>

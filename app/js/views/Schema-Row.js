@@ -56,6 +56,7 @@ define(['jquery', 'lodash', 'toastr', 'backbone', 'backbone-models/Schema',
             },
 
             refreshSchema: function() {
+                this.setPending();
                 this.model.fetch();
             },
 
