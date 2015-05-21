@@ -3,11 +3,11 @@
 //
 // Verifies the stored schema against the new generated context.
 
-define(['jquery', 'backbone', 'backbone-models/Schema',
+define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
         'text!backbone-templates/schema-review.html', 'jsondiffpatch',
         'formatters', 'toastr'
     ],
-    function($, Backbone, Schema, template, jsondiffpatch,
+    function($, _, Backbone, Schema, template, jsondiffpatch,
              _customFormatter, toastr) {
         var htmlEntities = function(str) {
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -156,6 +156,8 @@ define(['jquery', 'backbone', 'backbone-models/Schema',
                     toastr.error('Clicked key not found!');
                 }
 
+                // TODO: Use lodash:
+                // _.set(generatedContext[path], savedContext[path]);
                 setObjectValueAtPath(generatedContext, savedContext, path);
 
                 this.model.save({
