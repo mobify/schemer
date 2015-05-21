@@ -30,7 +30,7 @@ schemas for the project. Click the `create` button if a schema has not been
 created yet. This assumes that a fixture for the view exists in the project
 `tests/fixtures` folder.
  
-If the saved schema doesn't match the current state, click the `verify` button
+If the saved schema doesn't match the current state, click the `review` button
 to view the differences, and accept the ones that are intentional.
  
 ## Using in a project
@@ -51,4 +51,5 @@ view is correct.
 - app/:
     - Contains the Backbone app that consumes the REST API
 - phantom/:
-    - Used by index.js to generate the mock context for a given view  
+    - index/contextMocker: Used by index.js to generate the mock context for a 
+      given view  
