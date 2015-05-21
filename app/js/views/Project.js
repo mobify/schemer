@@ -7,9 +7,9 @@ function($, Backbone, template) {
     var View = Backbone.View.extend({
         el: '#project',
 
-        initialize: function(view) {
+        initialize: function() {
             this.listenTo(this.model, 'change', this.render);
-            this.render(view);
+            this.listenTo(this.model, 'sync', this.render)
         },
 
         events: {

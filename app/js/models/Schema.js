@@ -43,7 +43,7 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
                     url: model.url,
                     type: 'GET',
                     data: {
-                        path: 'schema/' + model.get('name') + '.json',
+                        path: 'schemae/' + model.get('name') + '.json',
                         viewPath: 'adaptation/views/' + viewName,
                         fixturePath: 'tests/fixtures/' + viewName + '.html'
                     },
@@ -143,7 +143,7 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
 
                 if (attrs.savedContext) {
                     $.post(this.url, {
-                        path: 'schema/' + this.get('name') + '.json',
+                        path: 'schemae/' + this.get('name') + '.json',
                         context: JSON.stringify(attrs.savedContext)
                     }, function () {
                         model
