@@ -148,12 +148,17 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
                     }, function () {
                         model
                             .set({
-                                savedContext: attrs.savedContext,
-                                generatedContext: attrs.generatedContext
-                            })
-                            .verifySchema();
+                                savedContext: attrs.savedContext
+                            });
 
-                        model.trigger('saved');
+                        // Might not always be provided
+                        if (attrs.generatedContext) {
+                            model.set({
+                                generatedContext: attrs.generatedContext
+                            });
+                        }
+
+                        model.verifySchema().trigger('saved');
                     });
                 }
             }

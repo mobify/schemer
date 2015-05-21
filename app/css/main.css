@@ -79,7 +79,7 @@ header {
     color: #fff;
 }
 
-.schema--status--mismatch:hover {
+.schema-review:hover {
     background: #bb2725;
     color: #fff;
 }
