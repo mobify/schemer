@@ -16,9 +16,9 @@ function($, Backbone, template) {
         },
 
         render: function() {
-            this.template = _.template(template, this.model.toJSON());
+            this.template = _.template(template);
 
-            this.$el.html(this.template);
+            this.$el.html(this.template(this.model.toJSON()));
 
             return this;
         }
