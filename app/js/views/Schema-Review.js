@@ -111,6 +111,11 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 }
 
                 var delta = jsondiffpatch.diff(savedContext, generatedContext);
+                var data = {
+                    name: this.model.get('name'),
+                    delta: delta,
+                    diff: jsondiffpatch.formatters.format(delta, savedContext)
+                };
 
                 /* TODO: Use a tool like https://github.com/inkling/htmldiff.js
                  or https://github.com/arnab/jQuery.PrettyTextDiff#documentation
@@ -121,14 +126,10 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                  inserting action buttons
                  */
 
-                this.template = _.template(template, {
-                    name: this.model.get('name'),
-                    delta: delta,
-                    diff: jsondiffpatch.formatters.format(delta, savedContext)
-                });
+                this.template = _.template(template);
 
                 // Render template and initialize
-                this.$el.html(this.template);
+                this.$el.html(this.template(data));
 
                 // TODO: We shouldn't show unchanged items in the first place
                 jsondiffpatch.formatters.hideUnchanged();

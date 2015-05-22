@@ -26,9 +26,10 @@
   "dependencies": {
     "backbone": "^1.1.2",
     "body-parser": "^1.12.3",
+    "colors": "^1.1.0",
     "express": "^4.12.3",
     "jsondiffpatch": "git@github.com:mobify/jsondiffpatch.git#development",
-    "lodash": "^2.4.2",
+    "lodash": "^3.9.1",
     "phantomjs": "~1.9.2-6",
     "require-text": "git@github.com:requirejs/text.git",
     "requirejs": "^2.1.17",

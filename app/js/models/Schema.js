@@ -2,8 +2,8 @@
 // ------------
 //
 
-define(['jquery', 'backbone', 'jsondiffpatch'],
-    function($, Backbone, jsondiffpatch) {
+define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
+    function($, _, Backbone, jsondiffpatch) {
         var SCHEMA_STATUS = {
             PENDING: 'fetching',
             MISMATCH: 'changed',
@@ -89,12 +89,12 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
                 var model = this;
                 var savedContext = model.get('savedContext');
                 var generatedContext = model.get('generatedContext');
+                var matches = _.matches(savedContext)(generatedContext);
 
-                var delta = jsondiffpatch.diff(savedContext, generatedContext);
-
-                model.set({
-                    status: delta ? SCHEMA_STATUS.MISMATCH : SCHEMA_STATUS.MATCH
-                });
+                model
+                    .set({
+                        status: matches ? SCHEMA_STATUS.MATCH : SCHEMA_STATUS.MISMATCH
+                    });
 
                 model.trigger('ready');
             },
@@ -158,7 +158,8 @@ define(['jquery', 'backbone', 'jsondiffpatch'],
                             });
                         }
 
-                        model.verifySchema().trigger('saved');
+                        model.verifySchema();
+                        model.trigger('saved');
                     });
                 }
             }

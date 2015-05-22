@@ -12,7 +12,7 @@ require.config({
 
         'jquery': 'bower_components/jquery/dist/jquery',
         'underscore': 'node_modules/underscore/underscore',
-        'lodash': 'node_modules/lodash/dist/lodash',
+        'lodash': 'node_modules/lodash/index',
         'jsondiffpatch': 'node_modules/jsondiffpatch/public/build/jsondiffpatch-full',
         // jsondiffpatch expects the module to be named as `formatters`
         'formatters': '/schemer/js/vendor/custom-formatter',

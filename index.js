@@ -1,25 +1,61 @@
 #!/usr/bin/env node
 
+// Leaves the server running to be accessible in the browser, as opposed to
+// running in a script on a CI environment
+var interactive = process.argv.indexOf('--interactive') > -1;
+
+var _ = require('lodash');
+
 // Schemer Settings
 const SERVER_PORT = 3000;
 const SERVER_URL = 'http://localhost:3000/';
 
 // Generates context for a given view with a fixture
-const CONTEXT_MOCKER = 'phantom/index.html';
+const CONTEXT_MOCKER_URL = 'phantom/index.html';
+
+// Adaptive project folders
+const VIEWS_DIR = './adaptation/views';
+const SCHEMA_DIR = './schemae';
+
+const VIEW_TMPL = _.template('adaptation/views/<%- viewName %>');
+const FIXTURE_TEMPLATE = _.template('tests/fixtures/<%- viewName %>.html');
 
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var path = require('path');
+var colors = require('colors');
 
 var childProcess = require('child_process');
 var phantomPath = require('phantomjs').path;
 
 var fs = require('fs');
 
+// Serve the Adaptive.js project whose folder we're in
+// TODO: Where/how are we using these?
+app.use('/', express.static('.'));
+app.use('/tests/', express.static('/tests'));
+
+// Schemer app paths
+app.use('/schemer/', express.static(__dirname + '/app'));
+app.use('/node_modules/', express.static(__dirname + '/node_modules'));
+app.use('/bower_components/', express.static(__dirname + '/bower_components'));
+app.use('/phantom/', express.static(__dirname + '/phantom'));
+
+// For parsing application/x-www-form-urlencoded. 1MB limit needed because our
+// contexts get pretty big.
+app.use(bodyParser.urlencoded({
+    extended: true,
+    limit: '1mb'
+}));
+
+// API
+// ---
+//
+
 var getContext = function(viewPath, fixturePath, cb) {
-    var generatorPath = SERVER_URL + CONTEXT_MOCKER;
+    var generatorPath = SERVER_URL + CONTEXT_MOCKER_URL;
     var pathString = '#viewPath=' + viewPath + '&fixturePath=text!' + fixturePath;
 
     // First verify fixture exists
@@ -41,6 +77,7 @@ var getContext = function(viewPath, fixturePath, cb) {
             maxBuffer: 1024 * 1024
         }, function(err, stdout, stderr) {
             if (err || stderr) {
+                console.error(err);
                 cb(err.message || stderr);
                 return;
             }
@@ -56,21 +93,78 @@ var getContext = function(viewPath, fixturePath, cb) {
     });
 };
 
-// Serve the Adaptive.js project whose folder we're in
-app.use('/', express.static('.'));
-app.use('/tests/', express.static('/tests'));
+// List all views in Adaptive project
+var getViews = function(cb) {
+    fs.readdir(VIEWS_DIR, function(err, views) {
+        cb(err, views);
+    });
+};
 
-// Schemer app paths
-app.use('/schemer/', express.static(__dirname + '/app'));
-app.use('/node_modules/', express.static(__dirname + '/node_modules'));
-app.use('/bower_components/', express.static(__dirname + '/bower_components'));
-app.use('/phantom/', express.static(__dirname + '/phantom'));
+var getSchemae = function(cb) {
+    fs.readdir(SCHEMA_DIR, function(err, schemae) {
+        cb(err, schemae);
+    });
+};
 
-// For parsing application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({
-    extended: true,
-    limit: '1mb'
-}));
+var verifySchema = function(schema, cb) {
+    fs.readFile(SCHEMA_DIR + '/' + schema, { encoding: 'utf8' }, function(err, contents) {
+        // TODO: Better way to extract view from schema. Maybe embed in schema?
+        var viewName = schema.replace(/\.json/, '');
+
+        var viewPath = VIEW_TMPL({ viewName: viewName });
+        var fixturePath = FIXTURE_TEMPLATE({ viewName: viewName });
+
+        if (err || !contents) {
+            console.error('Missing schema for ', viewName, err);
+            cb(false);
+        }
+
+        try {
+            var savedContext = JSON.parse(contents);
+
+            getContext(viewPath, fixturePath, function(err, generatedContext) {
+                if (err || !generatedContext) {
+                    console.error('Error generating context for ', viewName, err);
+                    cb(false);
+                    return;
+                }
+
+                cb(_.matches(savedContext)(generatedContext));
+            });
+        } catch(e) {
+            console.error('Error reading saved schema ', schema, ': ', err);
+            cb(false);
+        }
+    });
+};
+
+// Verify all the saved schemae in the project against their counterparts
+var verifySchemae = function() {
+    getSchemae(function(err, schema) {
+        // Schemae we're waiting to verify
+        var openSchemaCtr = schema.length;
+
+        if (err || !schema) {
+            console.error('Error fetching schemae.', err);
+            return;
+        }
+
+        schema.forEach(function(schema) {
+            verifySchema(schema, function(schemaMatch) {
+                var result = schemaMatch ? 'PASS'.green: 'FAIL'.red;
+
+                // Verify schema is valid
+                console.log('Verifying schema ', schema, ': ', result);
+
+                // Output summary and shutdown server
+                if (--openSchemaCtr <= 0) {
+                    console.log('\n---\n\nDone\n');
+                    http.close();
+                }
+            });
+        });
+    });
+};
 
 // Get information about the project
 app.get('/project', function(req, res) {
@@ -97,7 +191,7 @@ app.get('/project', function(req, res) {
 
 // List all Adaptive.js views in the project
 app.get('/views', function(req, res) {
-    fs.readdir('./adaptation/views', function(err, views) {
+    getViews(function(err, views) {
         if (err || !views || !views.length) {
             res.status(500).send('Error fetching view list.');
         }
@@ -187,5 +281,9 @@ app.get('/context', function(req, res) {
 });
 
 http.listen(SERVER_PORT, function() {
-    console.log('scheming on ' + SERVER_URL);
+    console.log('Scheming on ' + SERVER_URL + 'schemer');
 });
+
+if (!interactive) {
+    verifySchemae();
+}

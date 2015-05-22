@@ -38,9 +38,9 @@ define(['jquery', 'lodash', 'toastr', 'backbone', 'backbone-models/Schema',
                 });
 
                 // TODO: Upgrade Lodash to latest version
-                this.template = _.template(template, data);
+                this.template = _.template(template);
 
-                this.$el.html(this.template);
+                this.$el.html(this.template(data));
 
                 // Maintains chainability
                 return this;
