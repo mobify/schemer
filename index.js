@@ -217,7 +217,12 @@ app.get('/schema', function(req, res) {
             } else if(is404) {
                 res.send(false);
             } else {
-                savedContext = JSON.parse(fileContents);
+                try {
+                    savedContext = JSON.parse(fileContents);
+                } catch(e) {
+                    res.status(500).send('Error parsing context: ' + e);
+                    return;
+                }
 
                 getContext(viewPath, fixturePath, function(err, generatedContext) {
                     if (err) {
@@ -254,7 +259,10 @@ app.post('/schema', function(req, res) {
     // Save to schema folder
     if (body.path && body.context) {
         fs.writeFile(body.path, body.context, function(err) {
-            if (err) { throw err; }
+            if (err) {
+                res.status(500).send('Error saving schema: ', err);
+                return;
+            }
 
             res.send('Schema saved.');
         });
