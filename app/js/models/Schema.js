@@ -17,9 +17,11 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
             url: '/schema/',
 
             defaults: {
-                name: 'Uninitialized Schema',
+                name: null,
+                viewPath: null,
+                fixturePath: null,
                 status: SCHEMA_STATUS.PENDING,
-                actions: '',
+                actions: null,
                 // Context saved on the server
                 savedContext: null,
                 // Fresh context generated on this machine (developer might've
@@ -37,15 +39,13 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
 
             fetch: function() {
                 var model = this;
-                var viewName = model.get('name');
+                var schemaName = model.get('name');
 
                 $.ajax({
                     url: model.url,
                     type: 'GET',
                     data: {
-                        path: 'schemae/' + model.get('name') + '.json',
-                        viewPath: 'adaptation/views/' + viewName,
-                        fixturePath: 'tests/fixtures/' + viewName + '.html'
+                        name: schemaName
                     },
                     success: function(result) {
                         // Schema hasn't been created yet
@@ -60,6 +60,8 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                         try {
                             model
                                 .set({
+                                    viewPath: result.viewPath,
+                                    fixturePath: result.fixturePath,
                                     savedContext: result.savedContext,
                                     generatedContext: result.generatedContext
                                 })
@@ -108,8 +110,7 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                     url: '/context',
                     type: 'GET',
                     data: {
-                        viewPath: 'adaptation/views/' + viewName,
-                        fixturePath: 'tests/fixtures/' + viewName + '.html'
+                        viewName: viewName
                     },
                     success: function(data) {
                         if (!data) {
@@ -143,8 +144,12 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
 
                 if (attrs.savedContext) {
                     $.post(this.url, {
-                        path: 'schemae/' + this.get('name') + '.json',
-                        context: JSON.stringify(attrs.savedContext)
+                        name: this.get('name'),
+
+                        viewPath: this.get('viewPath'),
+                        fixturePath: this.get('fixturePath'),
+
+                        savedContext: JSON.stringify(attrs.savedContext)
                     }, function () {
                         model
                             .set({

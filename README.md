@@ -15,7 +15,13 @@ It allows you to compare the saved schema against the current version, and
 highlights any variations, surfacing unintended changes to the schema.
 
 ## What's the difference between a `schema` and a `context`? 
-A saved context for a given fixture is a `schema`.
+A schema is a context against a view/fixture pair, with some metadata. In other
+ words, the schema will contain: 
+ 
+ - The schema name
+ - The view path the schema was generated with (relative to project folder)
+ - The fixture path the schema was generated with (relative to project folder)
+ - The generated context of the view with the fixture
 
 ## Installation
 Install from NPM, or checkout this repo and run `npm link`. The `schemer` 

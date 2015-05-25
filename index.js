@@ -18,7 +18,8 @@ const VIEWS_DIR = './adaptation/views';
 const SCHEMA_DIR = './schemae';
 
 const VIEW_TMPL = _.template('adaptation/views/<%- viewName %>');
-const FIXTURE_TEMPLATE = _.template('tests/fixtures/<%- viewName %>.html');
+const FIXTURE_TMPL = _.template('tests/fixtures/<%- viewName %>.html');
+const SCHEMA_TMPL = _.template('./schemae/<%- viewName %>.json');
 
 var express = require('express');
 var app = express();
@@ -108,19 +109,17 @@ var getSchemae = function(cb) {
 
 var verifySchema = function(schema, cb) {
     fs.readFile(SCHEMA_DIR + '/' + schema, { encoding: 'utf8' }, function(err, contents) {
-        // TODO: Better way to extract view from schema. Maybe embed in schema?
-        var viewName = schema.replace(/\.json/, '');
-
-        var viewPath = VIEW_TMPL({ viewName: viewName });
-        var fixturePath = FIXTURE_TEMPLATE({ viewName: viewName });
-
         if (err || !contents) {
-            console.error('Missing schema for ', viewName, err);
+            console.error('Error reading schema ' + schema + ': ', err);
             cb(false);
         }
 
         try {
-            var savedContext = JSON.parse(contents);
+            var savedSchema = JSON.parse(contents);
+
+            var viewName = savedSchema.name;
+            var viewPath = savedSchema.viewPath;
+            var fixturePath = savedSchema.fixturePath;
 
             getContext(viewPath, fixturePath, function(err, generatedContext) {
                 if (err || !generatedContext) {
@@ -129,7 +128,7 @@ var verifySchema = function(schema, cb) {
                     return;
                 }
 
-                cb(_.matches(savedContext)(generatedContext));
+                cb(_.matches(savedSchema)(generatedContext));
             });
         } catch(e) {
             console.error('Error reading saved schema ', schema, ': ', err);
@@ -202,39 +201,46 @@ app.get('/views', function(req, res) {
 
 // Return requested schema
 app.get('/schema', function(req, res) {
-    var schemaPath = './' + req.query.path;
-    var viewPath = req.query.viewPath;
-    var fixturePath = req.query.fixturePath;
+    var name = req.query.name;
+
+    //var viewPath = VIEW_TMPL({ viewName: name });
+    //var fixturePath = FIXTURE_TMPL({ viewName: name });
+    var schemaPath = SCHEMA_TMPL({ viewName: name });
 
     if (schemaPath) {
         fs.readFile(schemaPath, function(err, fileContents) {
-            // Not a real error
-            var savedContext;
-            var is404 = err && err.code === 'ENOENT';
+            // This can be an expected result, like when we're creating it for
+            // the first time. Not an error, per se.
+            var isMissing = err && err.code === 'ENOENT';
 
-            if (err && !is404) {
+            var savedSchema, savedContext;
+
+            if (err && !isMissing) {
                 res.status(500).send('Error reading schema');
-            } else if(is404) {
+            } else if(isMissing) {
                 res.send(false);
             } else {
                 try {
-                    savedContext = JSON.parse(fileContents);
+                    savedSchema = JSON.parse(fileContents);
+                    savedContext = JSON.parse(savedSchema.savedContext);
+
+                    getContext(savedSchema.viewPath, savedSchema.fixturePath, function(err, generatedContext) {
+                        if (err) {
+                            res.status(500).send(err);
+                            return;
+                        }
+
+                        res.send({
+                            fixturePath: savedSchema.fixturePath,
+                            viewPath: savedSchema.viewPath,
+                            generatedContext: generatedContext,
+                            savedContext: savedContext
+                        });
+                    });
                 } catch(e) {
                     res.status(500).send('Error parsing context: ' + e);
                     return;
                 }
-
-                getContext(viewPath, fixturePath, function(err, generatedContext) {
-                    if (err) {
-                        res.status(500).send(err);
-                        return;
-                    }
-
-                    res.send({
-                        generatedContext: generatedContext,
-                        savedContext: savedContext
-                    });
-                });
             }
         });
     } else {
@@ -247,34 +253,47 @@ app.post('/schema', function(req, res) {
     // Save to schema store
     var body = req.body;
 
+    var schemaPath = SCHEMA_TMPL({ viewName: body.name });
+
+    // The view and fixture path are missing when we first create the schema,
+    // so we locate them.
+    var viewPath = body.viewPath || VIEW_TMPL({ viewName: body.name });
+    var fixturePath = body.fixturePath || FIXTURE_TMPL({ viewName: body.name });
+
+    var schema = {
+        name: body.name,
+        viewPath: viewPath,
+        fixturePath: fixturePath,
+        savedContext: body.savedContext
+    };
+
     // Try to look up directory
+    var schemaDir = path.dirname(schemaPath);
+
     try {
-        stats = fs.lstatSync(path.dirname(body.path));
-    }
-    catch (e) {
+        fs.lstatSync(schemaDir);
+    } catch (e) {
         // We assume this is because a directory doesn't exist. Create it.
-        fs.mkdirSync(path.dirname(body.path));
+        fs.mkdirSync(schemaDir);
     }
 
     // Save to schema folder
-    if (body.path && body.context) {
-        fs.writeFile(body.path, body.context, function(err) {
-            if (err) {
-                res.status(500).send('Error saving schema: ', err);
-                return;
-            }
+    fs.writeFile(schemaPath, JSON.stringify(schema), function(err) {
+        if (err) {
+            res.status(500).send('Error saving schema: ', err);
+            return;
+        }
 
-            res.send('Schema saved.');
-        });
-    } else {
-        res.status(400).send('Either the path or context is missing.');
-    }
+        res.send('Schema saved.');
+    });
 });
 
 // Get context for a given view
 app.get('/context', function(req, res) {
-    var viewPath = req.query.viewPath;
-    var fixturePath = req.query.fixturePath;
+    var viewName = req.query.viewName;
+
+    var viewPath = VIEW_TMPL({ viewName: viewName });
+    var fixturePath = FIXTURE_TMPL({ viewName: viewName });
 
     getContext(viewPath, fixturePath, function(err, generatedContext) {
         if (err) {
