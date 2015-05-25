@@ -19,7 +19,7 @@
         <button type="button" class="js-review schema-review">Review</button>
     <% } %>
 
-    <% if(status === SCHEMA_STATUS.MATCH || status === SCHEMA_STATUS.MISMATCH) { %>
+    <% if(status !== SCHEMA_STATUS.MISSING) { %>
         <button type="button" class="js-refresh">&#8635;</button>
     <% } %>
 </td>
