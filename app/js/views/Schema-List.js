@@ -16,6 +16,7 @@ function($, _, Backbone, Schema, template, SchemaRowView, toastr){
             this.listenTo(this.model, 'add', this.addOne);
 
             this.router = options.router;
+            this.template = _.template(template);
 
             // Calls the view's render method
             this.render();
@@ -55,9 +56,7 @@ function($, _, Backbone, Schema, template, SchemaRowView, toastr){
         },
 
         render: function() {
-            this.template = _.template(template, {});
-
-            this.$el.html(this.template);
+            this.$el.html(this.template());
 
             return this;
         }

@@ -60,6 +60,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
 
             initialize: function(options) {
                 this.router = options.router;
+                this.template = _.template(template);
 
                 // Wait till data's ready
                 this.listenTo(this.model, 'ready', this.render);
@@ -97,8 +98,6 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 /* TODO: Enhance jsondiffpatch to offer better hooks for
                  inserting action buttons
                  */
-
-                this.template = _.template(template);
 
                 // Render template and initialize
                 this.$el.html(this.template(data));

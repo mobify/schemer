@@ -18,6 +18,7 @@ define(['jquery', 'lodash', 'toastr', 'backbone', 'backbone-models/Schema',
                 this.listenTo(this.model, 'saved', this.schemaSaved);
 
                 this.router = options.router;
+                this.template = _.template(template);
 
                 this.render();
             },
@@ -36,9 +37,6 @@ define(['jquery', 'lodash', 'toastr', 'backbone', 'backbone-models/Schema',
                 $.extend(data, {
                     SCHEMA_STATUS: this.model.SCHEMA_STATUS
                 });
-
-                // TODO: Upgrade Lodash to latest version
-                this.template = _.template(template);
 
                 this.$el.html(this.template(data));
 
