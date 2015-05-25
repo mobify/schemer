@@ -17,9 +17,9 @@ const CONTEXT_MOCKER_URL = 'phantom/index.html';
 const VIEWS_DIR = './adaptation/views';
 const SCHEMA_DIR = './schemae';
 
-const VIEW_TMPL = _.template('adaptation/views/<%- viewName %>');
-const FIXTURE_TMPL = _.template('tests/fixtures/<%- viewName %>.html');
-const SCHEMA_TMPL = _.template('./schemae/<%- viewName %>.json');
+const VIEW_TMPL = _.template('adaptation/views/<%- name %>');
+const FIXTURE_TMPL = _.template('tests/fixtures/<%- name %>.html');
+const SCHEMA_TMPL = _.template('./schemae/<%- name %>.json');
 
 var express = require('express');
 var app = express();
@@ -202,10 +202,7 @@ app.get('/views', function(req, res) {
 // Return requested schema
 app.get('/schema', function(req, res) {
     var name = req.query.name;
-
-    //var viewPath = VIEW_TMPL({ viewName: name });
-    //var fixturePath = FIXTURE_TMPL({ viewName: name });
-    var schemaPath = SCHEMA_TMPL({ viewName: name });
+    var schemaPath = SCHEMA_TMPL({ name: name });
 
     if (schemaPath) {
         fs.readFile(schemaPath, function(err, fileContents) {
@@ -253,12 +250,12 @@ app.post('/schema', function(req, res) {
     // Save to schema store
     var body = req.body;
 
-    var schemaPath = SCHEMA_TMPL({ viewName: body.name });
+    var schemaPath = SCHEMA_TMPL({ name: body.name });
 
     // The view and fixture path are missing when we first create the schema,
     // so we locate them.
-    var viewPath = body.viewPath || VIEW_TMPL({ viewName: body.name });
-    var fixturePath = body.fixturePath || FIXTURE_TMPL({ viewName: body.name });
+    var viewPath = body.viewPath || VIEW_TMPL({ name: body.name });
+    var fixturePath = body.fixturePath || FIXTURE_TMPL({ name: body.name });
 
     var schema = {
         name: body.name,
@@ -292,8 +289,8 @@ app.post('/schema', function(req, res) {
 app.get('/context', function(req, res) {
     var viewName = req.query.viewName;
 
-    var viewPath = VIEW_TMPL({ viewName: viewName });
-    var fixturePath = FIXTURE_TMPL({ viewName: viewName });
+    var viewPath = VIEW_TMPL({ name: viewName });
+    var fixturePath = FIXTURE_TMPL({ name: viewName });
 
     getContext(viewPath, fixturePath, function(err, generatedContext) {
         if (err) {
