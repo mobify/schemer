@@ -39,35 +39,6 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
             return path.reverse();
         };
 
-        // Given a source object `source`,
-        // source = {
-        //     a: {
-        //         b: 1
-        //     }
-        // };
-        //
-        // Set the value of a chosen key `b` from the source object `source` to
-        // the target object `target`
-        var setObjectValueAtPath = function(source, target, path) {
-            if (!(source && target && path)) {
-                throw 'Missing options to setObjectValueAtPath!';
-            }
-
-            var sourceObj = source, targetObj = target;
-
-            // Traverse object to target path
-            // We want to hit source.a, not source.a.b
-            for (var ctr = 0, currentKey = path[0]; ctr < path.length - 1; ++ctr, currentKey = path[ctr]) {
-                sourceObj = sourceObj[currentKey];
-                targetObj = targetObj[currentKey];
-            }
-
-            // Set target.a = source.a
-            var lastComponent = path[path.length - 1];
-
-            targetObj[lastComponent] = sourceObj[lastComponent];
-        };
-
         // Encode the HTML within delta of context, preventing active HTML from
         // being inserted into the DOM
         var sanitizeHtml = function(obj) {
@@ -92,6 +63,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
 
                 // Wait till data's ready
                 this.listenTo(this.model, 'ready', this.render);
+                this.listenTo(this.model, 'saved', this.schemaSaved);
             },
 
             events: {
@@ -141,12 +113,17 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 this.router.navigate('/', { trigger: true });
             },
 
+            schemaSaved: function() {
+                toastr.info('Schema saved');
+                this.render();
+            },
+
             acceptChange: function(e) {
                 var $node = $(e.target).closest('[data-key]');
                 var key = $node.attr('data-key');
 
                 // TODO: Modify jsondiffpatch to give us the key directly
-                var path = findPath($node);
+                var path = findPath($node).join('.');
 
                 var savedContext = this.model.get('savedContext');
                 var generatedContext = this.model.get('generatedContext');
@@ -157,9 +134,8 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                     toastr.error('Clicked key not found!');
                 }
 
-                // TODO: Use lodash:
-                // _.set(generatedContext[path], savedContext[path]);
-                setObjectValueAtPath(generatedContext, savedContext, path);
+                // Save generated value to schema
+                 _.set(savedContext, path, generatedContext[path]);
 
                 this.model.save({
                     'savedContext': savedContext
