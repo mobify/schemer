@@ -228,15 +228,7 @@ app.get('/schema', function(req, res) {
                             return;
                         }
 
-                        var savedContext = savedSchema.savedContext;
-
-                        // TODO: WTF?!
-                        //if (typeof savedContext !== 'object') {
-                        //    savedSchema.savedContext = JSON.parse(savedSchema.savedContext);
-                        //    console.log('savedContext is a string for ', savedSchema.name);
-                        //} else {
-                        //    console.log('savedContext is an object for ', savedSchema.name);
-                        //}
+                        var savedContext = JSON.parse(savedSchema.savedContext);
 
                         res.send({
                             fixturePath: savedSchema.fixturePath,

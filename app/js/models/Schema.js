@@ -204,8 +204,10 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
 
                 var ignoredKeys = attrs.ignoredKeys || this.get('ignoredKeys');
                 var savedContext = attrs.savedContext || this.get('savedContext');
+                var generatedContext = attrs.generatedContext || this.get('generatedContext');
 
                 model.set({
+                    generatedContext: generatedContext,
                     savedContext: savedContext,
                     ignoredKeys: ignoredKeys
                 });
@@ -215,7 +217,7 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                     viewPath: this.get('viewPath'),
                     fixturePath: this.get('fixturePath'),
                     ignoredKeys: ignoredKeys,
-                    savedContext: savedContext
+                    savedContext: JSON.stringify(savedContext)
                 }, function () {
                     model.verifySchema();
                     model.trigger('saved');

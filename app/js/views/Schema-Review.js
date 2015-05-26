@@ -115,6 +115,8 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
             // Remove one of the ignored keys from the schema
             removeIgnore: function(e) {
                 e.preventDefault();
+                e.stopPropagation();
+
                 var $link = $(e.target);
                 var idx = $link.data('index');
                 var ignoredKeys = this.model.get('ignoredKeys') || [];
