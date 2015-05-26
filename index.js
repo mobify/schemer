@@ -132,6 +132,8 @@ var verifySchema = function(schema, cb) {
                 }
 
                 var savedContext = JSON.parse(savedSchema.savedContext);
+
+                // Exclude ignored keys
                 var ignoredKeys = savedSchema.ignoredKeys || [];
 
                 _.forEach(ignoredKeys, function(path) {

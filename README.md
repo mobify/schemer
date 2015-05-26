@@ -42,7 +42,26 @@ to view the differences, and accept the ones that are intentional.
 ## Using in a project
 Run Schemer and generate a schema for a view after a view development is 
 complete. Any time after that, run schemer to verify that the schema for the
-view is correct. 
+view is correct.
+
+## Usage
+
+`schemer [--interactive] [--port XYZ]`
+
+ - **--interactive**: Run Schemer in interactive mode
+ - **--port**: Specify the port to run schemer on
+
+### Interactive Mode
+You can run Schemer in a browser when creating/reviewing schemae. This is useful
+during development. Navigate to schemer on http://localhost:3000 (or whatever
+port you've specified) to see a list of the schemae. 
+
+### Unsupervised Mode
+Schemer can run in unsupervised mode to allow integration with a continuous
+integration (CI) environment like CircleCI. When running in this mode, Schemer
+will run through all the saved schemae, and output results for the verification.
+
+Schemer cannot create/edit schemae in this mode.
 
 ## Folder Structure
 
