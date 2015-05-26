@@ -14,6 +14,16 @@ header {
     width: 100%;
 }
 
+/* General */
+
+.unlist {
+    list-style: none;
+}
+
+.unlist li {
+    margin-bottom: 0;
+}
+
 /* Schema List Page */
 
 .schema-list {
@@ -58,7 +68,7 @@ header {
 .schema-action {
     width: 210px;
     height: 48px;
-    text-align: right;
+    text-align: left;
 }
 
 .schema-status div {
@@ -74,13 +84,23 @@ header {
     font-weight: bold;
 }
 
-.schema-review {
+.schema-review.is-mismatched {
     background-color: #bb4947;
     color: #fff;
 }
 
-.schema-review:hover {
+.schema-review.is-matched {
+    background-color: #51A351;
+    color: #fff;
+}
+
+.schema-review.is-mismatched:hover {
     background: #bb2725;
+    color: #fff;
+}
+
+.schema-review.is-matched:hover {
+    background: #51A351;
     color: #fff;
 }
 
@@ -98,6 +118,16 @@ header {
     bottom: 0;
     left: 0;
     width: 100%;
+}
+
+.ignore-key:hover {
+    text-decoration: none;
+}
+
+.ignore-key span {
+    display: inline-block;
+    margin-left: 5px;
+    color: #bb2725;
 }
 
 /* Delta display */

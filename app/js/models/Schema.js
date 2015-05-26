@@ -12,6 +12,27 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
             ERROR: 'error'
         };
 
+        var htmlEntities = function(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        };
+
+        // Encode the HTML within delta of context, preventing active HTML from
+        // being inserted into the DOM
+        var sanitizeHtml = function(obj) {
+            for(var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    if (typeof obj[key] === 'string') {
+                        obj[key] = htmlEntities(obj[key]);
+                    } else if(typeof obj === 'object') {
+                        obj[key] = sanitizeHtml(obj[key]);
+                    }
+                }
+            }
+
+            return obj;
+        };
+
         var Model = Backbone.Model.extend({
 
             url: '/schema/',
@@ -29,6 +50,8 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                 ignoredKeys: null,
                 // Differences between schema excluding ignored keys
                 delta: null,
+                // jsondiffpatch representation of delta
+                diff: null,
                 // Context saved on the server
                 savedContext: null,
                 // Fresh context generated on this machine (developer might've
@@ -72,8 +95,8 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                                     ignoredKeys: result.ignoredKeys,
                                     savedContext: result.savedContext,
                                     generatedContext: result.generatedContext
-                                })
-                                .verifySchema();
+                                });
+                            model.verifySchema();
                         } catch(e) {
                             model
                                 .set({
@@ -99,24 +122,38 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
             // Excludes ignored keys from the comparison.
             verifySchema: function() {
                 var model = this;
-                var savedContext = model.get('savedContext');
-                var generatedContext = model.get('generatedContext');
+
+                var savedContext = _.cloneDeep(model.get('savedContext'));
+                var generatedContext = _.cloneDeep(model.get('generatedContext'));
                 var delta;
 
                 // Discard ignored keys
-                var ignored = model.get('ignoredKeys');
+                var ignoredKeys = model.get('ignoredKeys') || [];
 
-                for (var ctr = 0, path = ignored[ctr]; ctr < ignored.length;
-                     ctr++, path = ignored[ctr]) {
+                _.forEach(ignoredKeys, function(path) {
                     delete savedContext[path];
                     delete generatedContext[path];
-                }
+                });
+
+                savedContext = sanitizeHtml(savedContext);
+                generatedContext = sanitizeHtml(generatedContext);
 
                 delta = jsondiffpatch.diff(savedContext, generatedContext);
+                /* TODO:
+                 1. Use a tool like https://github.com/inkling/htmldiff.js
+                    or https://github.com/arnab/jQuery.PrettyTextDiff#documentation
+                    to get more nuanced text and HTML diffing.
+                 2. Enhance jsondiffpatch to offer better hooks for
+                    inserting action buttons
+                 */
+                diff = jsondiffpatch.formatters.format(delta, savedContext);
+
+                console.log('Diff: ', diff);
 
                 model
                     .set({
                         delta: delta,
+                        diff: sanitizeHtml(diff),
                         status: !delta ? SCHEMA_STATUS.MATCH : SCHEMA_STATUS.MISMATCH
                     });
 

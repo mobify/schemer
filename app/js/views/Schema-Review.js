@@ -9,11 +9,6 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
     ],
     function($, _, Backbone, Schema, template, jsondiffpatch,
              _customFormatter, toastr) {
-        var htmlEntities = function(str) {
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        };
-
         // Get full object path to a diff node element
         //
         // <div data-key="z">
@@ -39,22 +34,6 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
             return path.reverse();
         };
 
-        // Encode the HTML within delta of context, preventing active HTML from
-        // being inserted into the DOM
-        var sanitizeHtml = function(obj) {
-            for(var key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    if (typeof obj[key] === 'string') {
-                        obj[key] = htmlEntities(obj[key]);
-                    } else if(typeof obj === 'object') {
-                        obj[key] = sanitizeHtml(obj[key]);
-                    }
-                }
-            }
-
-            return obj;
-        };
-
         var View = Backbone.View.extend({
             el: '#js-schema-review',
 
@@ -71,37 +50,15 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 'click .js-back-to-list': 'backToList',
                 'click .js-accept-change': 'acceptChange',
                 'click .js-ignore-change': 'ignoreChange',
+                'click .js-remove-ignore': 'removeIgnore',
                 'click .js-save': 'saveChanges'
             },
 
             render: function() {
-                var savedContext = sanitizeHtml(_.cloneDeep(this.model.get('savedContext')));
-                var generatedContext = sanitizeHtml(_.cloneDeep(this.model.get('generatedContext')));
-
-                if (!savedContext) {
-                    toastr.error('Saved context not found!');
-                } else if(!generatedContext) {
-                    toastr.error('Generated context not found!');
-                }
-
-                var delta = this.model.get('delta');
-                var data = {
-                    name: this.model.get('name'),
-                    delta: delta,
-                    diff: jsondiffpatch.formatters.format(delta, savedContext)
-                };
-
-                /* TODO: Use a tool like https://github.com/inkling/htmldiff.js
-                 or https://github.com/arnab/jQuery.PrettyTextDiff#documentation
-                 to get more nuanced text and HTML diffing.
-                 */
-
-                /* TODO: Enhance jsondiffpatch to offer better hooks for
-                 inserting action buttons
-                 */
+                console.log('Rendering');
 
                 // Render template and initialize
-                this.$el.html(this.template(data));
+                this.$el.html(this.template(this.model.toJSON()));
 
                 // TODO: We shouldn't show unchanged items in the first place
                 jsondiffpatch.formatters.hideUnchanged();
@@ -151,6 +108,20 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 var path = findPath($node).join('.');
 
                 ignoredKeys.push(path);
+
+                this.model.save({
+                    ignoredKeys: ignoredKeys
+                });
+            },
+
+            // Remove one of the ignored keys from the schema
+            removeIgnore: function(e) {
+                e.preventDefault();
+                var $link = $(e.target);
+                var idx = $link.data('index');
+                var ignoredKeys = this.model.get('ignoredKeys') || [];
+
+                ignoredKeys.splice(idx, 1);
 
                 this.model.save({
                     ignoredKeys: ignoredKeys

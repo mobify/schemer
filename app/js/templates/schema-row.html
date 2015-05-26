@@ -16,7 +16,9 @@
     <% if (status === SCHEMA_STATUS.MISSING) { %>
         <button type="button" class="js-create button-primary">Create</button>
     <% } else if(status === SCHEMA_STATUS.MISMATCH) { %>
-        <button type="button" class="js-review schema-review">Review</button>
+        <button type="button" class="js-review schema-review is-mismatched">Review</button>
+    <% } else if(status === SCHEMA_STATUS.MATCH) { %>
+        <button type="button" class="js-review schema-review is-matched">Review</button>
     <% } %>
 
     <% if(status !== SCHEMA_STATUS.MISSING) { %>

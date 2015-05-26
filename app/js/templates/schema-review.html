@@ -1,4 +1,4 @@
-<h4><%- name %></h4>
+<h3><%- name %></h3>
 
 <div class="row schema-row">
     <div id="js-schema-review" class="one-full column">
@@ -7,6 +7,19 @@
         <% } else { %>
         <div id="js-visual-diff"><%= diff %></div>
         <% } %>
+    </div>
+</div>
+
+<div class="row">
+    <div class="one-full column">
+        <h4>Ignored Keys</h4>
+        <ul class="unlist">
+            <%_.forEach(ignoredKeys, function(item, idx) {%>
+            <li>
+                <a href="#" class="js-remove-ignore ignore-key" data-index="<%- idx %>"><%- item %><span>x</span></a>
+            </li>
+            <% }) %>
+        </ul>
     </div>
 </div>
 

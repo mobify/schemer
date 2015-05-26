@@ -86,11 +86,12 @@ var getContext = function(viewPath, fixturePath, cb) {
             try {
                 // TODO: Validate to confirm we're getting context
                 ctx = JSON.parse(stdout);
-
-                cb(null, ctx);
             } catch(e) {
                 cb('Error generating context: ', e);
+                return;
             }
+
+            cb(null, ctx);
         });
     });
 };
@@ -227,12 +228,19 @@ app.get('/schema', function(req, res) {
                             return;
                         }
 
+                        var savedContext = savedSchema.savedContext;
+
+                        // TODO: WTF?!
+                        if (typeof savedContext !== 'object') {
+                            savedSchema.savedContext = JSON.parse(savedSchema.savedContext);
+                        }
+
                         res.send({
                             fixturePath: savedSchema.fixturePath,
                             viewPath: savedSchema.viewPath,
-                            ignoredKeys: savedSchema.ignoredKeys,
+                            ignoredKeys: savedSchema.ignoredKeys || [],
                             generatedContext: generatedContext,
-                            savedContext: savedSchema.savedContext
+                            savedContext: savedContext
                         });
                     });
                 } catch(e) {
