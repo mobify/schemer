@@ -2,7 +2,7 @@
 
 // Leaves the server running to be accessible in the browser, as opposed to
 // running in a script on a CI environment
-var interactive = process.argv.indexOf('--interactive') > -1;
+var argv = require('minimist')(process.argv.slice(2));
 
 var _ = require('lodash');
 
@@ -314,6 +314,7 @@ http.listen(SERVER_PORT, function() {
     console.log('Scheming on ' + SERVER_URL + 'schemer');
 });
 
-if (!interactive) {
+// Running in CI mode
+if (!argv.interactive) {
     verifySchemae();
 }
