@@ -48,9 +48,8 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                 status: SCHEMA_STATUS.PENDING,
                 // These keys are discounted in the verification
                 ignoredKeys: null,
-                // Differences between schema excluding ignored keys
-                delta: null,
-                // jsondiffpatch representation of delta
+                // jsondiffpatch representation of delta between saved/generated
+                // context
                 diff: null,
                 // Context saved on the server
                 savedContext: null,
@@ -143,14 +142,12 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                  1. Use a tool like https://github.com/inkling/htmldiff.js
                     or https://github.com/arnab/jQuery.PrettyTextDiff#documentation
                     to get more nuanced text and HTML diffing.
-                 2. Enhance jsondiffpatch to offer better hooks for
-                    inserting action buttons
+                 2. Enhance jsondiffpatch to offer better hooks for action buttons
                  */
                 diff = jsondiffpatch.formatters.format(delta, savedContext);
 
                 model
                     .set({
-                        delta: delta,
                         diff: sanitizeHtml(diff),
                         status: !delta ? SCHEMA_STATUS.MATCH : SCHEMA_STATUS.MISMATCH
                     });
@@ -158,16 +155,18 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                 model.trigger('ready');
             },
 
-            // Generate context by running the fixture through the project view
+            // Get generated context from Schemer API. The context generation is
+            // asynchronous, so we need a callback.
             generateContext: function(cb) {
                 var model = this;
-                var viewName = model.get('name');
 
                 $.ajax({
                     url: '/context',
                     type: 'GET',
                     data: {
-                        viewName: viewName
+                        name: model.get('name'),
+                        viewPath: model.get('viewPath'),
+                        fixturePath: model.get('fixturePath')
                     },
                     success: function(data) {
                         if (!data) {

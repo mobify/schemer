@@ -57,7 +57,9 @@ app.use(bodyParser.urlencoded({
 // ---
 //
 
-var getContext = function(viewPath, fixturePath, cb) {
+// Generate context for a given view and fixture by spinning up a PhantomJS
+// instance, and mocking AdaptiveJS.
+var generateContext = function(viewPath, fixturePath, cb) {
     var generatorPath = SERVER_URL + CONTEXT_MOCKER_URL;
     var pathString = '#viewPath=' + viewPath + '&fixturePath=text!' + fixturePath;
 
@@ -74,7 +76,6 @@ var getContext = function(viewPath, fixturePath, cb) {
             generatorPath + pathString
         ];
 
-        // TODO: Reuse PhantomJS instance
         childProcess.execFile(phantomPath, args, {
             // Max context string length
             maxBuffer: 1024 * 1024
@@ -86,10 +87,10 @@ var getContext = function(viewPath, fixturePath, cb) {
             }
 
             try {
-                // TODO: Validate to confirm we're getting context
+                // TODO: Validate to confirm we're getting expected context
                 ctx = JSON.parse(stdout);
             } catch(e) {
-                cb('Error generating context: ', e);
+                cb('Error generating context: ' + e);
                 return;
             }
 
@@ -98,19 +99,22 @@ var getContext = function(viewPath, fixturePath, cb) {
     });
 };
 
-// List all views in Adaptive project
+// List all views in Adaptive project by reading the project folder
 var getViews = function(cb) {
     fs.readdir(VIEWS_DIR, function(err, views) {
         cb(err, views);
     });
 };
 
+// Get all the saved schemae in the project folder
 var getSchemae = function(cb) {
     fs.readdir(SCHEMA_DIR, function(err, schemae) {
         cb(err, schemae);
     });
 };
 
+// Verify a given schema by re-generating the context for it, and comparing it
+// to the saved context
 var verifySchema = function(schema, cb) {
     fs.readFile(SCHEMA_DIR + '/' + schema, { encoding: 'utf8' }, function(err, contents) {
         if (err || !contents) {
@@ -125,7 +129,7 @@ var verifySchema = function(schema, cb) {
             var viewPath = savedSchema.viewPath;
             var fixturePath = savedSchema.fixturePath;
 
-            getContext(viewPath, fixturePath, function(err, generatedContext) {
+            generateContext(viewPath, fixturePath, function(err, generatedContext) {
                 if (err || !generatedContext) {
                     console.error('Error generating context for ', viewName, err);
                     cb(false);
@@ -142,9 +146,7 @@ var verifySchema = function(schema, cb) {
                     delete generatedContext[path];
                 });
 
-                // TODO: Use jsondiffpatch to keep delta consistent
-                var delta = jsondiffpatch.diff(savedContext, generatedContext);
-                cb(!delta);
+                cb(!jsondiffpatch.diff(savedContext, generatedContext));
             });
         } catch(e) {
             console.error('Error reading saved schema ', schema, ': ', err);
@@ -156,7 +158,8 @@ var verifySchema = function(schema, cb) {
 // Verify all the saved schemae in the project against their counterparts
 var verifySchemae = function() {
     getSchemae(function(err, schema) {
-        // Schemae we're waiting to verify
+        // Schemae we're waiting to verify. Used to detect when we've verified
+        // all schemae.
         var openSchemaCtr = (schema && schema.length) || 0;
         var passedAll = true;
 
@@ -186,6 +189,7 @@ var verifySchemae = function() {
     });
 };
 
+// Verification result in unsupervised mode
 var verificationSummary = function(success) {
     var exitCode = success ? 0 : 1;
 
@@ -248,8 +252,15 @@ app.get('/schema', function(req, res) {
             } else {
                 try {
                     savedSchema = JSON.parse(fileContents);
+                } catch(e) {
+                    res.status(500).send('Error parsing context: ' + e);
+                    return;
+                }
 
-                    getContext(savedSchema.viewPath, savedSchema.fixturePath, function(err, generatedContext) {
+                // We send the generated schema at the same time to save on
+                // another round-trip request for it
+                generateContext(savedSchema.viewPath, savedSchema.fixturePath,
+                    function(err, generatedContext) {
                         if (err) {
                             res.status(500).send(err);
                             return;
@@ -265,10 +276,6 @@ app.get('/schema', function(req, res) {
                             savedContext: savedContext
                         });
                     });
-                } catch(e) {
-                    res.status(500).send('Error parsing context: ' + e);
-                    return;
-                }
             }
         });
     } else {
@@ -284,7 +291,10 @@ app.post('/schema', function(req, res) {
     var schemaPath = SCHEMA_TMPL({ name: body.name });
 
     // The view and fixture path are missing when we first create the schema,
-    // so we locate them.
+    // so we locate them in the expected location.
+    /* TODO: This should come from the client for new results too, since
+    we want to allow using custom views/fixtures
+     */
     var viewPath = body.viewPath || VIEW_TMPL({ name: body.name });
     var fixturePath = body.fixturePath || FIXTURE_TMPL({ name: body.name });
     var ignoredKeys = body.ignoredKeys || [];
@@ -318,14 +328,14 @@ app.post('/schema', function(req, res) {
     });
 });
 
-// Get context for a given view
+// Get generated context for a given view
 app.get('/context', function(req, res) {
-    var viewName = req.query.viewName;
+    var schemaName = req.query.name;
 
-    var viewPath = VIEW_TMPL({ name: viewName });
-    var fixturePath = FIXTURE_TMPL({ name: viewName });
+    var viewPath = req.query.viewPath || VIEW_TMPL({ name: schemaName });
+    var fixturePath = req.query.fixturePath || FIXTURE_TMPL({ name: schemaName });
 
-    getContext(viewPath, fixturePath, function(err, generatedContext) {
+    generateContext(viewPath, fixturePath, function(err, generatedContext) {
         if (err) {
             res.status(500).send(err);
             return;
