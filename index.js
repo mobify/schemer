@@ -158,6 +158,7 @@ var verifySchemae = function() {
     getSchemae(function(err, schema) {
         // Schemae we're waiting to verify
         var openSchemaCtr = (schema && schema.length) || 0;
+        var passedAll = true;
 
         if (err || !schema) {
             console.error('Error fetching schemae.', err);
@@ -169,12 +170,16 @@ var verifySchemae = function() {
             verifySchema(schema, function(schemaMatch) {
                 var result = schemaMatch ? 'PASS'.green: 'FAIL'.red;
 
+                if (!schemaMatch) {
+                    passedAll = false;
+                }
+
                 // Verify schema is valid
                 console.log('Verifying schema ', schema, ': ', result);
 
                 // Output summary and shutdown server
                 if (--openSchemaCtr <= 0) {
-                    verificationSummary(true);
+                    verificationSummary(passedAll);
                 }
             });
         });
@@ -182,7 +187,7 @@ var verifySchemae = function() {
 };
 
 var verificationSummary = function(success) {
-    var exitCode = success ? 0 : -1;
+    var exitCode = success ? 0 : 1;
 
     console.log('\n---\n\nDone\n');
 
