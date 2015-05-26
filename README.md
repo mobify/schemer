@@ -6,15 +6,6 @@ Schemer
 Schema comparison tool for Adaptive.js 1.0 projects.
 
 ## What's a schema?
-A schema's the saved context values for an Adaptive.js view. This represents the
-state of a saved fixture (essentially the saved page the view is intended for),
-when the view is applied to it.
-
-## What does this tool do?
-It allows you to compare the saved schema against the current version, and 
-highlights any variations, surfacing unintended changes to the schema.
-
-## What's the difference between a `schema` and a `context`? 
 A schema is a context against a view/fixture pair, with some metadata. In other
  words, the schema will contain: 
  
@@ -23,27 +14,20 @@ A schema is a context against a view/fixture pair, with some metadata. In other
  - The fixture path the schema was generated with (relative to project folder)
  - The generated context of the view with the fixture
 
+## What does this tool do?
+It allows you to compare the context in the saved schema against the current
+context, and highlights any discrepancies, surfacing unintended changes to a 
+view.
+
+In other words, it lets the developer know if they've accidentally broken 
+something when changing the view.
+
+[ Add an example of use here ]
+
 ## Installation
 Install from NPM, or checkout this repo and run `npm link`. The `schemer` 
 command should now be available globally. 
  
-## How to use
-Run `schemer` in an Adaptive project directory. This will spin up a local server
-at http://locahost:3000/schemer. 
-
-Open the page in a browser to list the views of a project and see the status of
-schemas for the project. Click the `create` button if a schema has not been
-created yet. This assumes that a fixture for the view exists in the project
-`tests/fixtures` folder.
- 
-If the saved schema doesn't match the current state, click the `review` button
-to view the differences, and accept the ones that are intentional.
- 
-## Using in a project
-Run Schemer and generate a schema for a view after a view development is 
-complete. Any time after that, run schemer to verify that the schema for the
-view is correct.
-
 ## Usage
 
 `schemer [--interactive] [--port XYZ]`
@@ -55,6 +39,19 @@ view is correct.
 You can run Schemer in a browser when creating/reviewing schemae. This is useful
 during development. Navigate to schemer on http://localhost:3000 (or whatever
 port you've specified) to see a list of the schemae. 
+ 
+Click the `create` button if a schema has not been created yet. This assumes 
+that a fixture for the view (of the same name) exists in the project 
+`tests/fixtures` folder. So, to create a schema for a view named 'home', Schemer
+will expect a fixture `tests/fixtures/home.html` in the project folder.
+  
+If the saved schema doesn't match the current state, click the `review` button
+to view the differences, and accept the ones that are intentional.
+
+You can also ignore a change, if that key is expected to always fail. An example
+would be a key that returns a title including the present date, for example. 
+Since that'll always differ from the saved value, you can ignore that key to
+exclude it from the comparison.
 
 ### Unsupervised Mode
 Schemer can run in unsupervised mode to allow integration with a continuous
