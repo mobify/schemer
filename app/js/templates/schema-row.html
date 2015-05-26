@@ -1,4 +1,9 @@
-<td><%- name %></td>
+<td>
+    <%- name %>
+    <% if (ignoredKeys && ignoredKeys.length) { %>
+        <p class="ignored-key-count"><strong><%= ignoredKeys.length %></strong> keys ignored</p>
+    <% } %>
+</td>
 <td class="schema-status">
     <% if (status === SCHEMA_STATUS.MATCH) { %>
         <div class="schema-status--match">&#10003;</div>
