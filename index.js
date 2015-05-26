@@ -28,6 +28,7 @@ var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var path = require('path');
 var colors = require('colors');
+var jsondiffpatch = require('jsondiffpatch');
 
 var childProcess = require('child_process');
 var phantomPath = require('phantomjs').path;
@@ -142,7 +143,8 @@ var verifySchema = function(schema, cb) {
                 });
 
                 // TODO: Use jsondiffpatch to keep delta consistent
-                cb(_.matches(savedContext)(generatedContext));
+                var delta = jsondiffpatch.diff(savedContext, generatedContext);
+                cb(!delta);
             });
         } catch(e) {
             console.error('Error reading saved schema ', schema, ': ', err);
