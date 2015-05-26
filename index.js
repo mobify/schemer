@@ -155,10 +155,11 @@ var verifySchema = function(schema, cb) {
 var verifySchemae = function() {
     getSchemae(function(err, schema) {
         // Schemae we're waiting to verify
-        var openSchemaCtr = schema.length;
+        var openSchemaCtr = (schema && schema.length) || 0;
 
         if (err || !schema) {
             console.error('Error fetching schemae.', err);
+            http.close();
             return;
         }
 
