@@ -4,11 +4,12 @@
 // running in a script on a CI environment
 var argv = require('minimist')(process.argv.slice(2));
 
+var port = argv.port || 3000;
+
 var _ = require('lodash');
 
 // Schemer Settings
-const SERVER_PORT = 3000;
-const SERVER_URL = 'http://localhost:3000/';
+const SERVER_URL = _.template('http://localhost:<%- port %>/')({ port: port });
 
 // Generates context for a given view with a fixture
 const CONTEXT_MOCKER_URL = 'phantom/index.html';
@@ -130,7 +131,16 @@ var verifySchema = function(schema, cb) {
                     return;
                 }
 
-                cb(_.matches(savedSchema)(generatedContext));
+                var savedContext = JSON.parse(savedSchema.savedContext);
+                var ignoredKeys = savedSchema.ignoredKeys || [];
+
+                _.forEach(ignoredKeys, function(path) {
+                    delete savedContext[path];
+                    delete generatedContext[path];
+                });
+
+                // TODO: Use jsondiffpatch to keep delta consistent
+                cb(_.matches(savedContext)(generatedContext));
             });
         } catch(e) {
             console.error('Error reading saved schema ', schema, ': ', err);
@@ -310,7 +320,7 @@ app.get('/context', function(req, res) {
     });
 });
 
-http.listen(SERVER_PORT, function() {
+http.listen(port, function() {
     console.log('Scheming on ' + SERVER_URL + 'schemer');
 });
 
