@@ -161,7 +161,7 @@ var verifySchemae = function() {
 
         if (err || !schema) {
             console.error('Error fetching schemae.', err);
-            http.close();
+            verificationSummary(false);
             return;
         }
 
@@ -174,12 +174,19 @@ var verifySchemae = function() {
 
                 // Output summary and shutdown server
                 if (--openSchemaCtr <= 0) {
-                    console.log('\n---\n\nDone\n');
-                    http.close();
+                    verificationSummary(true);
                 }
             });
         });
     });
+};
+
+var verificationSummary = function(success) {
+    var exitCode = success ? 0 : -1;
+
+    console.log('\n---\n\nDone\n');
+
+    process.exit(exitCode);
 };
 
 // Get information about the project
