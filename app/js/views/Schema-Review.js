@@ -55,8 +55,6 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
             },
 
             render: function() {
-                console.log('Rendering');
-
                 // Render template and initialize
                 this.$el.html(this.template(this.model.toJSON()));
 

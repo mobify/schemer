@@ -148,8 +148,6 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                  */
                 diff = jsondiffpatch.formatters.format(delta, savedContext);
 
-                console.log('Diff: ', diff);
-
                 model
                     .set({
                         delta: delta,
@@ -205,7 +203,7 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                 if (!(attrs.savedContext || attrs.ignoredKeys)) { return; }
 
                 var ignoredKeys = attrs.ignoredKeys || this.get('ignoredKeys');
-                var savedContext = JSON.stringify(attrs.savedContext) || this.get('savedContext');
+                var savedContext = attrs.savedContext || this.get('savedContext');
 
                 model.set({
                     savedContext: savedContext,
