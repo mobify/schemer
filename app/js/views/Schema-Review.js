@@ -50,8 +50,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 'click .js-back-to-list': 'backToList',
                 'click .js-accept-change': 'acceptChange',
                 'click .js-ignore-change': 'ignoreChange',
-                'click .js-remove-ignore': 'removeIgnore',
-                'click .js-save': 'saveChanges'
+                'click .js-remove-ignore': 'removeIgnore'
             },
 
             render: function() {
