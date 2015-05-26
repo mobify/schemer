@@ -334,7 +334,8 @@ define([], function() {
             (nodeType ? ' jsondiffpatch-child-node-type-' + nodeType : '');
         context.out('<li class="' + nodeClass + '" data-key="' + leftKey + '">' +
         '<div class="jsondiffpatch-patch-container">' +
-        '<button type="button" class="js-accept-change">Accept</button>' +
+        '<button type="button" class="js-accept-change schema-review--accept button-primary">Accept</button>' +
+        '<button type="button" class="js-ignore-change schema-review--ignore">Ignore</button>' +
         '<div class="jsondiffpatch-property-name">' + leftKey + '</div>');
     };
 

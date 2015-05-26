@@ -70,6 +70,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
             events: {
                 'click .js-back-to-list': 'backToList',
                 'click .js-accept-change': 'acceptChange',
+                'click .js-ignore-change': 'ignoreChange',
                 'click .js-save': 'saveChanges'
             },
 
@@ -83,7 +84,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                     toastr.error('Generated context not found!');
                 }
 
-                var delta = jsondiffpatch.diff(savedContext, generatedContext);
+                var delta = this.model.get('delta');
                 var data = {
                     name: this.model.get('name'),
                     delta: delta,
@@ -138,6 +139,21 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
 
                 this.model.save({
                     'savedContext': savedContext
+                });
+            },
+
+            ignoreChange: function(e) {
+                var $node = $(e.target).closest('[data-key]');
+                var key = $node.attr('data-key');
+                var ignoredKeys = this.model.get('ignoredKeys') || [];
+
+                // TODO: Modify jsondiffpatch to give us the key directly
+                var path = findPath($node).join('.');
+
+                ignoredKeys.push(path);
+
+                this.model.save({
+                    ignoredKeys: ignoredKeys
                 });
             }
 

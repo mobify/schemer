@@ -84,6 +84,11 @@ header {
     color: #fff;
 }
 
+.schema-review--ignore {
+    margin-right: 10px;
+}
+
+.js-ignore-change:hover:after,
 .js-accept-change:hover:after {
     content: '';
     border-bottom: 1px solid #999;

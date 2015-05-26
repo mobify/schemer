@@ -84,11 +84,12 @@ var getContext = function(viewPath, fixturePath, cb) {
             }
 
             try {
+                // TODO: Validate to confirm we're getting context
                 ctx = JSON.parse(stdout);
 
                 cb(null, ctx);
             } catch(e) {
-                cb('Unexpected output while generating context: ' + stdout);
+                cb('Error generating context: ', e);
             }
         });
     });
@@ -210,7 +211,7 @@ app.get('/schema', function(req, res) {
             // the first time. Not an error, per se.
             var isMissing = err && err.code === 'ENOENT';
 
-            var savedSchema, savedContext;
+            var savedSchema;
 
             if (err && !isMissing) {
                 res.status(500).send('Error reading schema');
@@ -219,7 +220,6 @@ app.get('/schema', function(req, res) {
             } else {
                 try {
                     savedSchema = JSON.parse(fileContents);
-                    savedContext = JSON.parse(savedSchema.savedContext);
 
                     getContext(savedSchema.viewPath, savedSchema.fixturePath, function(err, generatedContext) {
                         if (err) {
@@ -230,8 +230,9 @@ app.get('/schema', function(req, res) {
                         res.send({
                             fixturePath: savedSchema.fixturePath,
                             viewPath: savedSchema.viewPath,
+                            ignoredKeys: savedSchema.ignoredKeys,
                             generatedContext: generatedContext,
-                            savedContext: savedContext
+                            savedContext: savedSchema.savedContext
                         });
                     });
                 } catch(e) {
@@ -256,11 +257,13 @@ app.post('/schema', function(req, res) {
     // so we locate them.
     var viewPath = body.viewPath || VIEW_TMPL({ name: body.name });
     var fixturePath = body.fixturePath || FIXTURE_TMPL({ name: body.name });
+    var ignoredKeys = body.ignoredKeys || [];
 
     var schema = {
         name: body.name,
         viewPath: viewPath,
         fixturePath: fixturePath,
+        ignoredKeys: ignoredKeys,
         savedContext: body.savedContext
     };
 
@@ -281,7 +284,7 @@ app.post('/schema', function(req, res) {
             return;
         }
 
-        res.send('Schema saved.');
+        res.send('Schema saved');
     });
 });
 

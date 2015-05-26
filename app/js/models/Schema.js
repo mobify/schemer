@@ -17,11 +17,18 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
             url: '/schema/',
 
             defaults: {
+                // Schema name
                 name: null,
+                // View's directory path in the project
                 viewPath: null,
+                // Fixture's directory path in the project
                 fixturePath: null,
+                // Used in UI
                 status: SCHEMA_STATUS.PENDING,
-                actions: null,
+                // These keys are discounted in the verification
+                ignoredKeys: null,
+                // Differences between schema excluding ignored keys
+                delta: null,
                 // Context saved on the server
                 savedContext: null,
                 // Fresh context generated on this machine (developer might've
@@ -62,6 +69,7 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                                 .set({
                                     viewPath: result.viewPath,
                                     fixturePath: result.fixturePath,
+                                    ignoredKeys: result.ignoredKeys,
                                     savedContext: result.savedContext,
                                     generatedContext: result.generatedContext
                                 })
@@ -87,15 +95,29 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                 });
             },
 
+            // Compare the saved and generated context to find delta (differences)
+            // Excludes ignored keys from the comparison.
             verifySchema: function() {
                 var model = this;
                 var savedContext = model.get('savedContext');
                 var generatedContext = model.get('generatedContext');
-                var matches = _.matches(savedContext)(generatedContext);
+                var delta;
+
+                // Discard ignored keys
+                var ignored = model.get('ignoredKeys');
+
+                for (var ctr = 0, path = ignored[ctr]; ctr < ignored.length;
+                     ctr++, path = ignored[ctr]) {
+                    delete savedContext[path];
+                    delete generatedContext[path];
+                }
+
+                delta = jsondiffpatch.diff(savedContext, generatedContext);
 
                 model
                     .set({
-                        status: matches ? SCHEMA_STATUS.MATCH : SCHEMA_STATUS.MISMATCH
+                        delta: delta,
+                        status: !delta ? SCHEMA_STATUS.MATCH : SCHEMA_STATUS.MISMATCH
                     });
 
                 model.trigger('ready');
@@ -142,31 +164,27 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
             save: function(attrs) {
                 var model = this;
 
-                if (attrs.savedContext) {
-                    $.post(this.url, {
-                        name: this.get('name'),
+                // Only update saved schema if one of these has changed
+                if (!(attrs.savedContext || attrs.ignoredKeys)) { return; }
 
-                        viewPath: this.get('viewPath'),
-                        fixturePath: this.get('fixturePath'),
+                var ignoredKeys = attrs.ignoredKeys || this.get('ignoredKeys');
+                var savedContext = JSON.stringify(attrs.savedContext) || this.get('savedContext');
 
-                        savedContext: JSON.stringify(attrs.savedContext)
-                    }, function () {
-                        model
-                            .set({
-                                savedContext: attrs.savedContext
-                            });
+                model.set({
+                    savedContext: savedContext,
+                    ignoredKeys: ignoredKeys
+                });
 
-                        // Might not always be provided
-                        if (attrs.generatedContext) {
-                            model.set({
-                                generatedContext: attrs.generatedContext
-                            });
-                        }
-
-                        model.verifySchema();
-                        model.trigger('saved');
-                    });
-                }
+                $.post(this.url, {
+                    name: this.get('name'),
+                    viewPath: this.get('viewPath'),
+                    fixturePath: this.get('fixturePath'),
+                    ignoredKeys: ignoredKeys,
+                    savedContext: savedContext
+                }, function () {
+                    model.verifySchema();
+                    model.trigger('saved');
+                });
             }
 
         });
