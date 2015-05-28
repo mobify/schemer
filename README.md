@@ -25,12 +25,14 @@ something when changing the view.
 [ Add an example of use here ]
 
 ## Installation
-Install from NPM, or checkout this repo and run `npm link`. The `schemer` 
-command should now be available globally. 
- 
+Add a reference to the Schemer repo in your project's package.json and run
+`npm install`. 
+
 ## Usage
 
-`schemer [--interactive] [--port XYZ]`
+In the project directory, run the following command:
+
+    schemer [--interactive] [--port XYZ]
 
  - **--interactive**: Run Schemer in interactive mode
  - **--port**: Specify the port to run schemer on
@@ -53,12 +55,30 @@ would be a key that returns a title including the present date, for example.
 Since that'll always differ from the saved value, you can ignore that key to
 exclude it from the comparison.
 
+Ignored keys are listed in the review page, and can be removed by being clicked 
+on.
+
 ### Unsupervised Mode
 Schemer can run in unsupervised mode to allow integration with a continuous
 integration (CI) environment like CircleCI. When running in this mode, Schemer
 will run through all the saved schemae, and output results for the verification.
 
 Schemer cannot create/edit schemae in this mode.
+
+To integrate Schemer into your CircleCi environment, point to the Schemer 
+script in your circle.yml file:
+
+*Example*:
+```
+test:
+    pre:
+        - grunt preview:
+        background: true
+        - sleep 5
+    override:
+        - grunt test
+        - ./node_modules/schemer/index.js
+```
 
 ## Folder Structure
 
