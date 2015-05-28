@@ -34,8 +34,9 @@ In the project directory, run the following command:
 
     schemer [--interactive] [--port XYZ]
 
- - **--interactive**: Run Schemer in interactive mode
- - **--port**: Specify the port to run schemer on
+ **--interactive**: Run Schemer in interactive mode
+ 
+ **--port**: Specify the port to run schemer on
 
 ### Interactive Mode
 You can run Schemer in a browser when creating/reviewing schemae. This is useful
