@@ -4,11 +4,10 @@
 // running in a script on a CI environment
 var argv = require('minimist')(process.argv.slice(2));
 
-var port = argv.port || 3000;
-
 var _ = require('lodash');
 
 // Schemer Settings
+var port = argv.port || 3000;
 const SERVER_URL = _.template('http://localhost:<%- port %>/')({ port: port });
 
 // Generates context for a given view with a fixture
@@ -77,7 +76,7 @@ var generateContext = function(viewPath, fixturePath, cb) {
         ];
 
         childProcess.execFile(phantomPath, args, {
-            // Max context string length
+            // Max stdout length
             maxBuffer: 1024 * 1024
         }, function(err, stdout, stderr) {
             if (err || stderr) {
@@ -158,8 +157,7 @@ var verifySchema = function(schema, cb) {
 // Verify all the saved schemae in the project against their counterparts
 var verifySchemae = function() {
     getSchemae(function(err, schema) {
-        // Schemae we're waiting to verify. Used to detect when we've verified
-        // all schemae.
+        // Counter of schemae we're waiting to verify
         var openSchemaCtr = (schema && schema.length) || 0;
         var passedAll = true;
 
@@ -223,12 +221,25 @@ app.get('/project', function(req, res) {
 
 // List all Adaptive.js views in the project
 app.get('/views', function(req, res) {
+    // TODO: Send across views and fixture information too
     getViews(function(err, views) {
         if (err || !views || !views.length) {
             res.status(500).send('Error fetching view list.');
         }
 
-        res.send(views);
+        var results = views.map(function(view) {
+            var name = view.replace(/\.js/, '');
+            var viewPath = VIEW_TMPL({ name: name });
+            var fixturePath = FIXTURE_TMPL({ name: name });
+
+            return {
+                name: name,
+                viewPath: viewPath,
+                fixturePath: fixturePath
+            };
+        });
+
+        res.send(results);
     });
 });
 
@@ -290,13 +301,8 @@ app.post('/schema', function(req, res) {
 
     var schemaPath = SCHEMA_TMPL({ name: body.name });
 
-    // The view and fixture path are missing when we first create the schema,
-    // so we locate them in the expected location.
-    /* TODO: This should come from the client for new results too, since
-    we want to allow using custom views/fixtures
-     */
-    var viewPath = body.viewPath || VIEW_TMPL({ name: body.name });
-    var fixturePath = body.fixturePath || FIXTURE_TMPL({ name: body.name });
+    var viewPath = body.viewPath;
+    var fixturePath = body.fixturePath;
     var ignoredKeys = body.ignoredKeys || [];
 
     var schema = {
@@ -332,8 +338,8 @@ app.post('/schema', function(req, res) {
 app.get('/context', function(req, res) {
     var schemaName = req.query.name;
 
-    var viewPath = req.query.viewPath || VIEW_TMPL({ name: schemaName });
-    var fixturePath = req.query.fixturePath || FIXTURE_TMPL({ name: schemaName });
+    var viewPath = req.query.viewPath;
+    var fixturePath = req.query.fixturePath;
 
     generateContext(viewPath, fixturePath, function(err, generatedContext) {
         if (err) {

@@ -13,6 +13,7 @@
 <div class="row">
     <div class="one-full column">
         <h4>Ignored Keys</h4>
+        <% if (ignoredKeys && ignoredKeys.length) { %>
         <ul class="unlist">
             <%_.forEach(ignoredKeys, function(item, idx) {%>
             <li>
@@ -20,6 +21,9 @@
             </li>
             <% }) %>
         </ul>
+        <% } else { %>
+            <p><strong>No ignored keys found</strong></p>
+        <% } %>
     </div>
 </div>
 
