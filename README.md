@@ -3,14 +3,15 @@ Schemer
 
 ![Image](app/images/schemer.gif)
 
-Schema comparison tool for Adaptive.js 1.0 projects.
+Schema comparison tool for Adaptive.js 1.x and Mobify.js 1.x projects.
 
 ## What's a schema?
 A schema is a context against a view/fixture pair, with some metadata. In other
  words, the schema will contain: 
  
  - The schema name
- - The view path the schema was generated with (relative to project folder)
+ - The view path the schema was generated with (relative to project folder). 
+   Not applicable for Mobify.js projects.
  - The fixture path the schema was generated with (relative to project folder)
  - The generated context of the view with the fixture
 
@@ -22,21 +23,27 @@ view.
 In other words, it lets the developer know if they've accidentally broken 
 something when changing the view.
 
-[ Add an example of use here ]
-
 ## Installation
 Add a reference to the Schemer repo in your project's package.json and run
 `npm install`. 
 
-## Usage
+### Mobify.js Support
+In order to run Schemer against Mobify.js projects, a custom version of the 
+mobify-client needs to be installed.
 
+[ Instructions to install custom mobify-client ]
+
+## Usage
 In the project directory, run the following command:
 
-    schemer [--interactive] [--port XYZ]
+    ./node_modules/schemer/index.js [--interactive] [--framework=adaptivejs|mobifyjs] [--port XYZ]
 
- **--interactive**: Run Schemer in interactive mode
+ **--interactive**: Run Schemer in interactive mode, accessible on 
+ http://localhost:3000/schemer.
  
  **--port**: Specify the port to run schemer on
+ 
+ **--framework**: Either `adaptivejs` (default) or `mobifyjs`.
 
 ### Interactive Mode
 You can run Schemer in a browser when creating/reviewing schemae. This is useful
@@ -53,13 +60,13 @@ to view the differences, and accept the ones that are intentional.
 
 You can also ignore a change, if that key is expected to always fail. An example
 would be a key that returns a title including the present date, for example. 
-Since that'll always differ from the saved value, you can ignore that key to
+Since that will always differ from the saved value, you can ignore that key to
 exclude it from the comparison.
 
 Ignored keys are listed in the review page, and can be removed by being clicked 
 on.
 
-### Unsupervised Mode
+### Unsupervised/CI Mode
 Schemer can run in unsupervised mode to allow integration with a continuous
 integration (CI) environment like CircleCI. When running in this mode, Schemer
 will run through all the saved schemae, and output results for the verification.
@@ -94,5 +101,6 @@ test:
 - app/:
     - Contains the Backbone app that consumes the REST API
 - phantom/:
-    - index/contextMocker: Used by index.js to generate the mock context for a 
-      given view  
+    - adaptivejs/: Contains Adaptive context mocker
+    - mobifyjs/: Contains Mobify.js context mocker
+- tests: Schemer tests

@@ -7,7 +7,7 @@
         // Note: Unlike the contextMocker, we just run this on the page. We
         // don't actually match any context keys, but we don't care, because we
         // just want the context choice list.
-        if (e.origin !== 'http://localhost:3000' || typeof response !== 'object') {
+        if (e.origin !== window.location.origin || typeof response !== 'object') {
             return;
         }
 
