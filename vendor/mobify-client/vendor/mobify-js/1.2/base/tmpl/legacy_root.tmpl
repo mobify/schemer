@@ -1,0 +1,9 @@
+{>base_root/}
+
+{<body}
+    <section id="x-root">
+        {+header}{>_header/}{/header}
+        <section id="x-main">{+content}{$body|innerHTML|s}{/content}</section>
+        {+footer}{>_footer/}{/footer}
+    </section>
+{/body}

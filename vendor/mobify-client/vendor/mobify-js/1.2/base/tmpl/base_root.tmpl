@@ -1,0 +1,34 @@
+{doctype|s}
+{$html|openTag|s}
+{$head|openTag|s}
+    {+base_scripts}
+        {#lib_import/}
+        {%script}
+            Mobify.enhance();
+            // Scroll the page past URL bar if user did not scroll manually, and hash is absent.
+            Mobify.$(this).bind('load', function() {
+                location.hash || setTimeout(function() {
+                    pageYOffset || scrollTo(0, 1);
+                }, 250);
+            });
+        {/script}
+        {%script}{#content}
+            Mobify.$('html, #x-root').last().addClass("{#templateName}x-{.}{~s}{/templateName}");
+        {/content}{/script}    
+    {/base_scripts}
+    {+head}
+        {$head|innerHTML|s}
+        <link rel="stylesheet" href="{config.configDir}{?config.tablet}tablet{:else}stylesheet{/config.tablet}.css" />
+        <meta name="viewport" content="width=device-width; initial-scale=1.0; minimum-scale=1.0; maximum-scale=1.0; user-scalable=no;" />
+    {/head}
+</head>
+{$body|openTag|s}
+    {+body}
+        {+header}{>_header/}{/header}
+        {+content}{$body|innerHTML|s}{/content}
+        {+footer}{>_footer/}{/footer}
+    {/body}
+    {+scripts}
+    {/scripts}
+</body>
+</html>

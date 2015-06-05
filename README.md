@@ -29,9 +29,9 @@ Add a reference to the Schemer repo in your project's package.json and run
 
 ### Mobify.js Support
 In order to run Schemer against Mobify.js projects, a custom version of the 
-mobify-client needs to be installed.
-
-[ Instructions to install custom mobify-client ]
+mobify-client is provided in the vendor folder. You'll also need to run 
+`npm install` in the vendor/mobify-client folder to install mobify-client 
+dependencies.
 
 ## Usage
 In the project directory, run the following command:
@@ -65,6 +65,22 @@ exclude it from the comparison.
 
 Ignored keys are listed in the review page, and can be removed by being clicked 
 on.
+
+### Mobify.js
+In order to use Schemer with mobify.js, you need to have a folder `fixtures`
+ within your project `src` folder, with fixtures matching the template name of
+ each template.
+ 
+You will need to run a custom version of the mobify-client you've installed. For
+instance, you would run the following command in *your mobify.js project 
+directory* (instead of `mobify preview`):
+
+`[schemer-folder]/vendor/mobify-client/bin/mobify.js preview`
+ 
+Additionally, you will need to replace the standard Mobify tag within the 
+fixtures to the one provided in the `phantom/mobifyjs/tag.js`. This tag will
+negate the need to preview using preview.mobify.com, and will always load the
+bundle at http://localhost:8080/mobify.js
 
 ### Unsupervised/CI Mode
 Schemer can run in unsupervised mode to allow integration with a continuous
