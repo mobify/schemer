@@ -28,7 +28,12 @@ function($, _, Backbone, Schema, template, SchemaRowView, toastr){
 
         addOne: function (schema) {
             var view = new SchemaRowView({ model: schema, router: this.router });
-            this.$el.find('tbody').append(view.render().el);
+            var $body = this.$el.find('tbody');
+
+            // Remove loading indicator
+            $body.find('.js-loading').remove();
+
+            $body.append(view.render().el);
         },
 
         fetch: function() {
