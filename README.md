@@ -30,6 +30,10 @@ something when changing the view.
 Add a reference to the Schemer repo in your project's package.json and run
 `npm install`. 
 
+You can install the current development branch in the repo by adding this:
+
+`"schemer": "git+ssh://git@github.com:mobify/schemer.git#development"`
+
 ### Mobify.js Support
 
 In order to run Schemer against Mobify.js projects, a custom version of the 
