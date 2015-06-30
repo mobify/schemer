@@ -53,6 +53,9 @@ In the project directory, run the following command:
  **--port**: Specify the port to run schemer on
  
  **--framework**: Either `adaptivejs` (default) or `mobifyjs`.
+ 
+**Remember to run `grunt preview` or `grunt build_dev` in your project before
+ running Schemer!
 
 ### Interactive Mode
 
