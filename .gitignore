@@ -28,3 +28,5 @@ node_modules
 
 # OS Specific
 .DS_Store
+
+bower_components

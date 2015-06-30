@@ -28,7 +28,7 @@ something when changing the view.
 ## Installation
 
 Add a reference to the Schemer repo in your project's package.json and run
-`npm install`. 
+`npm install` and `bower install`. 
 
 You can install the current development branch in the repo by adding this:
 
