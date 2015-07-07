@@ -33,6 +33,14 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
             return obj;
         };
 
+        var deleteNestedKey = function(currentPath, currentElement) {
+            if (currentPath.length === 1) {
+                delete currentElement[currentPath[0]];
+            } else {
+                return deleteNestedKey(currentPath.slice(1), currentElement[currentPath[0]]);
+            }
+        };
+
         var Model = Backbone.Model.extend({
 
             url: '/schema/',
@@ -130,8 +138,9 @@ define(['jquery', 'lodash', 'backbone', 'jsondiffpatch'],
                 var ignoredKeys = model.get('ignoredKeys') || [];
 
                 _.forEach(ignoredKeys, function(path) {
-                    delete savedContext[path];
-                    delete generatedContext[path];
+                    var splitPath = path.split('.');
+                    deleteNestedKey(splitPath, savedContext);
+                    deleteNestedKey(splitPath, generatedContext);
                 });
 
                 savedContext = sanitizeHtml(savedContext);

@@ -89,7 +89,7 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 }
 
                 // Save generated value to schema
-                 _.set(savedContext, path, generatedContext[path]);
+                _.set(savedContext, path, _.get(generatedContext, path));
 
                 this.model.save({
                     'savedContext': savedContext
@@ -117,10 +117,19 @@ define(['jquery', 'lodash', 'backbone', 'backbone-models/Schema',
                 e.stopPropagation();
 
                 var $link = $(e.target);
-                var idx = $link.data('index');
                 var ignoredKeys = this.model.get('ignoredKeys') || [];
 
-                ignoredKeys.splice(idx, 1);
+                // make sure the link is the link, not the span containing the x
+                if ($link.parent('a').length) {
+                    $link = $link.parent();
+                }
+
+                var keyString = $link.text();
+
+                // we want to remove the x at the end of the text
+                keyString = keyString.substring(0, keyString.length - 1);
+
+                ignoredKeys.splice(ignoredKeys.indexOf(keyString), 1);
 
                 this.model.save({
                     ignoredKeys: ignoredKeys
