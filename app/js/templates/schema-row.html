@@ -1,0 +1,32 @@
+<td>
+    <%- name %>
+    <% if (ignoredKeys && ignoredKeys.length) { %>
+        <p class="ignored-key-count"><strong><%= ignoredKeys.length %></strong> keys ignored</p>
+    <% } %>
+</td>
+<td class="schema-status">
+    <% if (status === SCHEMA_STATUS.MATCH) { %>
+        <div class="schema-status--match">&#10003;</div>
+    <% } else if (status === SCHEMA_STATUS.MISMATCH || status === SCHEMA_STATUS.ERROR) { %>
+        <div class="schema-status--mismatch">x</div>
+    <% } else if (status === SCHEMA_STATUS.MATCH) { %>
+        <div class="schema-status--missing">n/a</div>
+    <% } else if (status === SCHEMA_STATUS.PENDING) { %>
+        <div class="schema-status--loading">.</div>
+    <% } else { %>
+        <div></div>
+    <% } %>
+</td>
+<td class="schema-action">
+    <% if (status === SCHEMA_STATUS.MISSING) { %>
+        <button type="button" class="js-create button-primary">Create</button>
+    <% } else if(status === SCHEMA_STATUS.MISMATCH) { %>
+        <button type="button" class="js-review schema-review is-mismatched">Review</button>
+    <% } else if(status === SCHEMA_STATUS.MATCH) { %>
+        <button type="button" class="js-review schema-review is-matched">Review</button>
+    <% } %>
+
+    <% if(status !== SCHEMA_STATUS.MISSING) { %>
+        <button type="button" class="js-refresh">&#8635;</button>
+    <% } %>
+</td>

@@ -1,0 +1,26 @@
+{
+  "name": "schemer",
+  "main": "index.js",
+  "version": "0.0.1",
+  "homepage": "https://github.com/mobify/schemer",
+  "authors": [
+    "Donniel Thomas <donniel@mobify.com>"
+  ],
+  "description": "Schema generation/comparison tool for Adaptive.js 1.0 projects",
+  "keywords": [
+    "schemer",
+    "adaptive.js"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "toastr": "~2.1.1"
+  }
+}

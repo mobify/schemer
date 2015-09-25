@@ -1,0 +1,13 @@
+---
+layout: base
+bodyclass: docs
+---
+
+<div class="row-fluid reversed-column">
+    <div class="span8">
+	    {{ content }}
+    </div>
+    <div class="span4 sidebar-nav docs-nav rounded shaded">
+		{% active_links %}{% markdown %}{% include nav-docs.md %}{% endmarkdown %}{% endactive_links %}
+	</div>
+</div>

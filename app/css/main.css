@@ -1,0 +1,162 @@
+h1 {
+    margin-bottom: 0;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+.container {
+    margin: 20px;
+}
+
+#container {
+    width: 100%;
+}
+
+/* General */
+
+.unlist {
+    list-style: none;
+}
+
+.unlist li {
+    margin-bottom: 0;
+}
+
+/* Schema List Page */
+
+.schema-list {
+    width: 100%;
+}
+
+.ignored-key-count {
+    margin-bottom: 0;
+}
+
+/* Schema Verification Page */
+
+.schema-row {
+    margin-bottom: 20px;
+}
+
+.schema-status--loading {
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: load8 1.1s infinite linear;
+    animation: load8 1.1s infinite linear;
+}
+
+@-webkit-keyframes load8 {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+@keyframes load8 {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.schema-action {
+    width: 210px;
+    height: 48px;
+    text-align: left;
+}
+
+.schema-status div {
+    width: 30px;
+}
+
+.schema-status--match {
+    color: #51A351;
+}
+
+.schema-status--mismatch {
+    color: #bb4947;
+    font-weight: bold;
+}
+
+.schema-review.is-mismatched {
+    background-color: #bb4947;
+    color: #fff;
+}
+
+.schema-review.is-matched {
+    background-color: #51A351;
+    color: #fff;
+}
+
+.schema-review.is-mismatched:hover {
+    background: #bb2725;
+    color: #fff;
+}
+
+.schema-review.is-matched:hover {
+    background: #51A351;
+    color: #fff;
+}
+
+.schema-review--ignore {
+    margin-right: 10px;
+}
+
+.js-ignore-change:hover:after,
+.js-accept-change:hover:after {
+    content: '';
+    border-bottom: 1px solid #999;
+    position: absolute;
+    display: block;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+.ignore-key:hover {
+    text-decoration: none;
+}
+
+.ignore-key span {
+    display: inline-block;
+    margin-left: 5px;
+    color: #bb2725;
+}
+
+/* Delta display */
+
+/* Note: Duplicated class to increase specificity */
+.jsondiffpatch-delta.jsondiffpatch-node {
+    display: block;
+    overflow: auto;
+}
+
+.jsondiffpatch-delta li {
+    margin-bottom: 0;
+}
+
+.jsondiffpatch-patch-container {
+    position: relative;
+    width: 100%;
+    overflow: auto;
+}
+
+.jsondiffpatch-patch-container button {
+    float: right;
+    display: block;
+}
+
+.jsondiffpatch-unchanged {
+    display: none;
+}

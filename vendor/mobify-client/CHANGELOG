@@ -1,0 +1,167 @@
+v0.3.39 - Make mobify-client compatible with IO.js 1.1.0 and Node.js 0.12.x
+v0.3.38 - Update 1.0, 1.1 and 1.3 with proper fix for iOS 8.0 scrolling
+          issue
+v0.3.37 - Revert updates to 1.0, 1.1 and 1.3 that attempted to fix an iOS 8.0
+          scrolling bug but caused unintended side effects. A proper fix will
+          be released shortly.
+
+v0.3.36 - Update 1.0, 1.1 and 1.3 to fix iOS 8.0 scrolling bug
+
+v0.3.35 - Update 1.0 to include a fix for unmobify
+
+v0.3.34 - Make v1.1 point at v1.1 submodule not v1.3
+
+v0.3.33 - Fixes bug in i18n for Mobify.js v1.0, v1.1, and v1.3
+        - Fixes compatibility issue in v1.1 and v1.3 with the v7 Mobify tag
+
+v0.3.32 - Bug fixes in Mobify.js 1.3
+
+v0.3.31 - Updates Mobify.js 1.3 to use Mobify service APIs from bower
+
+v0.3.30 - Adds SVG mimetype to preview
+
+v0.3.29 - Adds ability to server `preview` over HTTPS
+        - Bumps Mobify.js v1.1 for Firefox Fix
+
+v0.3.28 - Fixes issue with @import directives being dropped.
+        - Excluded files are not uploaded in any folder
+
+v0.3.27 - Adds Mobify.js v1.3 with experimental support for IE10+
+
+v0.3.26 - Updates Mobify.js for JazzCat last-modified heuristic
+        - Adds fix for <styles> in <scripts>
+
+v0.3.25 -
+
+v0.3.24 - Allow user to change src and bld directories of a project.
+
+v0.3.23 - Updates CleanCSS
+
+v0.3.22 - Update mobify-js for Jazzcat fixes
+        - Fixes issue with SSL proxying on 0.10.x
+
+v0.3.21 - Update Mobify.js 1.1
+        - Added more options to run compass
+
+v0.3.20 - Compatible with 0.10.x *and* Windows
+
+v0.3.19 - Compatible with 0.10.x
+
+v0.3.18 - Fixes compass_plugin resgression
+
+v0.3.17 - Fixes compass_plugin on win32
+
+v0.3.16 - Adds warning about file size
+
+v0.3.15 - Fixes permissions on uploaded tarfiles
+        - Adds option to tag injector to specify a custom tag
+
+v0.3.14 - Adds BlackBerry 10 Support
+
+v0.3.13 - Updated version of Mobify.js
+
+v0.3.12 - Fixes CleanCSS performance bug
+
+v0.3.10 - Adds proxy support for pushing
+
+v0.3.8  - Fixes Windows path issue introduced in v0.3.7
+
+v0.3.7  - Provides 'project_name' template variable when compiling mobify.js
+        - Updates Zepto
+        - Image resizer now reports 'project_name'
+        - Adds Debug flag. Will always give debugging output when using
+          `mobify preview`
+
+v0.3.6  - Adds `mobify build` command
+        - Removes bld folder after a push
+        - Adds tests for command line functions
+        - Fixes warnings on iOS caused by the viewport tag
+
+v0.3.5  - Performance improvements with 1.1
+        - Fixes bug with Combo and FF Mobile
+
+v0.3.4  - Adds Combo Service
+
+v0.3.3  -
+
+v0.3.2  - Fixes preview bug
+
+v0.3.0  - Published on NPM
+
+v0.2.25 - Adds Mobify.js 1.1 Alpha.
+        - Better error reporting for mobify.js compilation.
+
+v0.2.24 - Fix a regression in `$.fn.imageResize`.
+
+v0.2.23 - Fix `Mobify.desktop` with V6 tags.
+        - Introduce hash function for `$.fn.imageResize`.
+
+v0.2.22 - Adds persistence to PreviewServer.
+        - Updates API endpoint.
+
+v0.2.21 - Plugin compatibility with older tags.
+
+v0.2.20 - Fixes scaffold errors.
+        - Improves HTML detection for tag injection.
+        - Adds communication layer with portal.mobify.com.
+        - Adds better error handling.
+        - Fixes an issue in the V6 tag with anchor string precedance.
+        - Fixes an issue handling orientation events in mobify-js.
+
+v0.2.19 - Adds HTTPS support to tag injection.
+        - ImageResize uses shorter hosts.
+        - Default tag version is 6.
+
+v0.2.18 - Added styling to scaffold.
+
+v0.2.17 - $.fn.imageResize refractor.
+
+v0.2.16 - Adds StudioJS hooks.
+
+v0.2.15 - Adds per session alternate bundle handling for V6 tags.
+
+v0.2.14 - Adds LICENSE.
+
+v0.2.13 - Updates fstream for npm fix.
+
+v0.2.12 - Adds ImageResize() API
+
+v0.2.11 - Adds changes to api/main.js for v6 compatibility.
+
+v0.2.10 - Adds changes to unmobify.js for v6 compatability.
+
+v0.2.9 - Changes 'build' to 'push'
+
+v0.2.8 - Adds v6 Tag Compatability
+       - Fixes DOMContentLoaded bug.
+
+v0.2.7 - Bumps mobify.js for legacy builds fix.
+
+v0.2.6 - Bumps mobify.js.
+
+v0.2.5 - Adds "login" command.
+
+v0.2.4 - Adds basic scaffold.
+
+v0.2.3 - Fixes legacy sites.
+       - Adds --project override.
+
+v0.2.2 - Adds Minification
+
+v0.2.1 - Adds `--auth` option to `build` command.
+       - Adds `--tag` option to `preview` command.
+
+v0.1.4 - Version Bump
+
+v0.1.3 - Adds `mobify` tool. `mobifyjs` tool will be deprecated.
+
+v0.1.2 - Fixed bug which caused tag-injector to fail due to connections being
+        set to keep-alive.
+
+Pre-history:
+
+>>>>>>> Adds `mobify` tool to replace `mobifyjs` tool.
+1.2 - Add support for running cauldron right in the site directory
+      Absolute references are now tried in both cwd and cauldron directory
+1.1 - Renamed from sprocket to cauldron
+1.0 - Initial release

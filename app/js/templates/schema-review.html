@@ -1,0 +1,34 @@
+<h3><%- name %></h3>
+
+<div class="row schema-row">
+    <div id="js-schema-review" class="one-full column">
+        <% if (!diff) { %>
+            <p>No differences found!</p>
+        <% } else { %>
+        <div id="js-visual-diff"><%= diff %></div>
+        <% } %>
+    </div>
+</div>
+
+<div class="row">
+    <div class="one-full column">
+        <h4>Ignored Keys</h4>
+        <% if (ignoredKeys && ignoredKeys.length) { %>
+        <ul class="unlist">
+            <%_.forEach(ignoredKeys, function(item, idx) {%>
+            <li>
+                <a href="#" class="js-remove-ignore ignore-key" data-index="<%- idx %>"><%- item %><span>x</span></a>
+            </li>
+            <% }) %>
+        </ul>
+        <% } else { %>
+            <p><strong>No ignored keys found</strong></p>
+        <% } %>
+    </div>
+</div>
+
+<div class="row">
+    <div class="one-full column">
+        <button type="button" class="js-back-to-list">Back</button>
+    </div>
+</div>
