@@ -17,9 +17,11 @@ const MOBIFYJS_VIEW_LIST_URL = 'phantom/mobifyjs/view-list.html';
 
 // Adaptive project folders
 const VIEWS_DIR = './adaptation/views';
+const PAGES_DIR = './app/pages';
 const SCHEMA_DIR = './schemae';
 
 const ADAPTIVEJS_VIEW_TMPL = _.template('adaptation/views/<%- name %>');
+const ADAPTIVE2_VIEW_TMPL = _.template('app/pages/<%- name %>/<%- name %>-view');
 const ADAPTIVEJS_FIXTURE_TMPL = _.template('tests/fixtures/<%- name %>.html');
 const MOBIFYJS_FIXTURE_TMPL = _.template('src/fixtures/<%- name %>.html');
 const SCHEMA_TMPL = _.template('./schemae/<%- name %>.json');
@@ -38,6 +40,7 @@ var phantomPath = require('phantomjs').path;
 var fs = require('fs');
 
 var framework = argv.framework || 'adaptivejs';
+var version;
 
 // Serve the Adaptive.js project whose folder we're in
 app.use('/', express.static('.'));
@@ -75,7 +78,7 @@ app.get('/project', function (req, res) {
         }
 
         var pjson = JSON.parse(data);
-        var version = framework === 'adaptivejs' ? pjson.dependencies.adaptivejs : pjson.api;
+        version = framework === 'adaptivejs' ? pjson.dependencies.adaptivejs : pjson.api;
 
         res.send({
             name: pjson.name,
@@ -142,6 +145,12 @@ var generateContext = function (viewPath, fixturePath, cb) {
 var getAdaptiveViews = function (cb) {
     fs.readdir(VIEWS_DIR, function (err, views) {
         cb(err, views);
+    });
+};
+
+getAdaptive2Views = function(cb) {
+    fs.readdir(PAGES_DIR, function(err, pages) {
+        cb(err, pages);
     });
 };
 
@@ -270,25 +279,48 @@ var verificationSummary = function (success) {
 // List all views in the project
 app.get('/views', function (req, res) {
     if (framework === 'adaptivejs') {
-        getAdaptiveViews(function (err, views) {
-            if (err || !views || !views.length) {
-                res.status(500).send('Error fetching view list.');
-            }
+        if (/^.?2/.test(version)) {
+            // Do version 2 stuff
+            getAdaptive2Views(function(err, views) {
+                if (err || !views || !views.length) {
+                    res.status(500).send('Error fetching view list.');
+                }
 
-            var results = views.map(function (view) {
-                var name = view.replace(/\.js/, '');
-                var viewPath = ADAPTIVEJS_VIEW_TMPL({name: name});
-                var fixturePath = ADAPTIVEJS_FIXTURE_TMPL({name: name});
+                var results = views.map(function(view) {
+                    var name = view;
+                    var viewPath = ADAPTIVE2_VIEW_TMPL({name: name});
+                    var fixturePath = ADAPTIVEJS_FIXTURE_TMPL({name: name});
 
-                return {
-                    name: name,
-                    viewPath: viewPath,
-                    fixturePath: fixturePath
-                };
+                    return {
+                        name: name,
+                        viewPath: viewPath,
+                        fixturePath: fixturePath
+                    };
+                });
+
+                res.send(results);
             });
+        } else {
+            getAdaptiveViews(function (err, views) {
+                if (err || !views || !views.length) {
+                    res.status(500).send('Error fetching view list.');
+                }
 
-            res.send(results);
-        });
+                var results = views.map(function (view) {
+                    var name = view.replace(/\.js/, '');
+                    var viewPath = ADAPTIVEJS_VIEW_TMPL({name: name});
+                    var fixturePath = ADAPTIVEJS_FIXTURE_TMPL({name: name});
+
+                    return {
+                        name: name,
+                        viewPath: viewPath,
+                        fixturePath: fixturePath
+                    };
+                });
+
+                res.send(results);
+            });
+        }
     } else if (framework === 'mobifyjs') {
         getKonfTemplates(function (err, views) {
             if (err || !views || !views.length) {
