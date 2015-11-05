@@ -1,8 +1,9 @@
 Schemer
 =======
 
-[![Code Climate](https://codeclimate.com/github/mobify/schemer/badges/gpa.svg)](https://codeclimate.com/github/mobify/schemer)
 ![Image](app/images/schemer.gif)
+
+[![Code Climate](https://codeclimate.com/github/mobify/schemer/badges/gpa.svg)](https://codeclimate.com/github/mobify/schemer)
 
 Schema comparison tool for Adaptive.js 1.x and Mobify.js 1.x projects.
 
